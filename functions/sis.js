@@ -1,9 +1,9 @@
-'use strict'
+//'use strict'
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
 
-let mongo_uri;
-let cachedDb = null;
+var mongo_uri;
+var cachedDb = null;
 
 exports.handler = (event, context, callback) => {
     console.log("",{event, context})
