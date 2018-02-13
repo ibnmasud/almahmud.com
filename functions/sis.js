@@ -1,3 +1,76 @@
+(function(e, a) { for(var i in a) e[i] = a[i]; }(exports, /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 12:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 //'use strict'
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
@@ -5,8 +78,8 @@
 var mongo_uri;
 var cachedDb = null;
 
-exports.handler = (event, context, callback) => {
-    console.log("",{event, context})
+exports.handler = function (event, context, callback) {
+    console.log("", { event: event, context: context });
     //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
     context.callbackWaitsForEmptyEventLoop = false;
     /*var uri = process.env.MONGO_URI;
@@ -18,26 +91,22 @@ exports.handler = (event, context, callback) => {
 
 function processEvent(event, context, callback) {
     //console.log('Calling MongoDB Atlas from AWS Lambda with event: ' + JSON.stringify(event));
-    callback(null, {statusCode: 200,
-        headers:{ "content-type":"application/json"},
-        body:JSON.stringify({msg:"msg",event, context})})
+    callback(null, { statusCode: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ msg: "msg", event: event, context: context }) });
 
     /*var jsonContents = JSON.parse(JSON.stringify(event));
-
-    
-
-    //date conversion for grades array
+     
+     //date conversion for grades array
     if (jsonContents.grades != null) {
         for (var i = 0, len = jsonContents.grades.length; i < len; i++) {
             //use the following line if you want to preserve the original dates
             //jsonContents.grades[i].date = new Date(jsonContents.grades[i].date);
-
-            //the following line assigns the current date so we can more easily differentiate between similar records
+             //the following line assigns the current date so we can more easily differentiate between similar records
             jsonContents.grades[i].date = new Date();
         }
     }
-
-    try {
+     try {
         //testing if the database connection exists and is connected to Atlas so we can try to re-use it
         if (cachedDb && cachedDb.serverConfig.isConnected()) {
             createDoc(cachedDb, jsonContents, callback);
@@ -65,9 +134,8 @@ function createDoc(db, json, callback) {
         if (err != null) {
             console.error("an error occurred in createDoc", err);
             callback(null, JSON.stringify(err));
-        }
-        else {
-            var message = `Kudos! You just created an entry into the restaurants collection with id: ${result.insertedId}`;
+        } else {
+            var message = "Kudos! You just created an entry into the restaurants collection with id: " + result.insertedId;
             console.log(message);
             callback(null, message);
         }
@@ -76,3 +144,7 @@ function createDoc(db, json, callback) {
         //db.close();
     });
 };
+
+/***/ })
+
+/******/ })));
