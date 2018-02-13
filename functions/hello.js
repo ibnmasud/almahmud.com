@@ -21872,17 +21872,18 @@ var Hapi = __webpack_require__(28);
 var server = new Hapi.Server();
 server.connection({});
 server.route({
-    method: 'GET',
-    path: '/health',
-    handler: function handler(request, reply) {
-        return reply({ status: 'ok' });
-    }
+  method: 'GET',
+  path: '/health',
+  handler: function handler(request, reply) {
+    return reply({ status: 'ok' });
+  }
 });
 var rootPath = '/hello';
 var hh = HapiLambdaHandler.handlerFromServer(server);
 exports.handler = function (event, context, callback) {
-    event.path = event.path.split(rootPath)[1];
-    hh(event, context, callback);
+  console.log("", event);
+  event.path = event.path.split(rootPath)[1];
+  hh(event, context, callback);
 };
 
 /***/ }),
