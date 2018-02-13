@@ -13,7 +13,8 @@ exports.handler = (event, context, callback) => {
     if (mongo_uri === null) {
         mongo_uri = uri
     }
-    processEvent(event, context, callback);
+    callback(null, {msg:"msg",event, context})
+    //processEvent(event, context, callback);
 };
 
 function processEvent(event, context, callback) {
