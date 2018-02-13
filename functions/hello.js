@@ -21888,8 +21888,8 @@ var hh = HapiLambdaHandler.handlerFromServer(server);
 exports.handler = function (event, context, callback) {
   console.log("", event);
   event.path = event.path.split(rootPath)[1];
-  //callback(null,lamdaResponse( { body:"abc"}))
-  hh(event, context, callback);
+  callback(null, lamdaResponse(process.env));
+  //hh(event, context, callback);
 };
 
 /***/ }),
