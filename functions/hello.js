@@ -21873,13 +21873,17 @@ var server = new Hapi.Server();
 server.connection({});
 server.route({
     method: 'GET',
-    path: '/.netlify/functions/hello/health',
+    path: '/health',
     handler: function handler(request, reply) {
         return reply({ status: 'ok' });
     }
 });
-
-exports.handler = HapiLambdaHandler.handlerFromServer(server);
+var rootPath = '/hello';
+var hh = HapiLambdaHandler.handlerFromServer(server);
+exports.handler = function (event, context, callback) {
+    event.path = event.path.split(rootPath)[1];
+    hh(event, context, callback);
+};
 
 /***/ }),
 /* 144 */
