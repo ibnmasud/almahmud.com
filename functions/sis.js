@@ -9,10 +9,10 @@ exports.handler = (event, context, callback) => {
     console.log("",{event, context})
     //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
     context.callbackWaitsForEmptyEventLoop = false;
-    var uri = process.env.MONGO_URI;
+    /*var uri = process.env.MONGO_URI;
     if (mongo_uri === null) {
         mongo_uri = uri
-    }
+    }*/
     processEvent(event, context, callback);
 };
 
