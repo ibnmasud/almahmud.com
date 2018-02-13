@@ -21873,7 +21873,7 @@ var server = new Hapi.Server();
 server.connection({});
 server.route({
     method: 'GET',
-    path: '/hello/health',
+    path: '/.netlify/functions/hello/health',
     handler: function handler(request, reply) {
         return reply({ status: 'ok' });
     }
