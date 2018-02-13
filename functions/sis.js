@@ -6,6 +6,7 @@ let mongo_uri;
 let cachedDb = null;
 
 exports.handler = (event, context, callback) => {
+    console.log("",{event, context})
     //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
     context.callbackWaitsForEmptyEventLoop = false;
     var uri = process.env.MONGO_URI;
@@ -17,7 +18,7 @@ exports.handler = (event, context, callback) => {
 
 function processEvent(event, context, callback) {
     //console.log('Calling MongoDB Atlas from AWS Lambda with event: ' + JSON.stringify(event));
-    console.log("",{event, context})
+    
     callback(null, {event, context})
     /*var jsonContents = JSON.parse(JSON.stringify(event));
 
