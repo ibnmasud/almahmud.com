@@ -21878,12 +21878,18 @@ server.route({
     return reply({ status: 'ok' });
   }
 });
+function lamdaResponse(json) {
+  return { statusCode: 200,
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(json) };
+}
 var rootPath = '/hello';
 var hh = HapiLambdaHandler.handlerFromServer(server);
 exports.handler = function (event, context, callback) {
   console.log("", event);
   event.path = event.path.split(rootPath)[1];
-  hh(event, context, callback);
+  callback(null, lamdaResponse({ body: "abc" }));
+  //hh(event, context, callback);
 };
 
 /***/ }),
