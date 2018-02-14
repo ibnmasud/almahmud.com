@@ -60,197 +60,20 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 201);
+/******/ 	return __webpack_require__(__webpack_require__.s = 227);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 12:
+/******/ ([
+/* 0 */,
+/* 1 */,
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports) {
 
-module.exports = require("util");
+module.exports = require("stream");
 
 /***/ }),
-
-/***/ 152:
-/***/ (function(module, exports) {
-
-module.exports = require("net");
-
-/***/ }),
-
-/***/ 18:
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
-
-/***/ }),
-
-/***/ 19:
-/***/ (function(module, exports) {
-
-module.exports = require("path");
-
-/***/ }),
-
-/***/ 201:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _joi = __webpack_require__(210);
-
-var route = __webpack_require__(231)({});
-//'use strict'
-//const AWS = require('aws-sdk');
-//var MongoClient = require('mongodb').MongoClient;
-
-var mongo_uri;
-var cachedDb = null;
-var Boom = __webpack_require__(202);
-var Joi = __webpack_require__(210);
-var rootPath = '/sis';
-
-exports.handler = function (event, context, callback) {
-    console.log("", { event: event, context: context });
-    //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
-    context.callbackWaitsForEmptyEventLoop = false;
-    /*var uri = process.env.MONGO_URI;
-    if (mongo_uri === null) {
-        mongo_uri = uri
-    }*/
-    processEvent(event, context, callback);
-};
-function lamdaResponse(json) {
-    if (json && json.isBoom) {
-        return { statusCode: json.output.statusCode,
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(json.output.payload) };
-    } else {
-        return { statusCode: 200,
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(json) };
-    }
-}
-var routes = {
-    "GET": [{ path: "", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "msg", event: event, context: context }));
-        } }, { path: "/people", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
-        } }, { path: "/people/:id", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "people2", event: event, context: context }));
-        } }],
-    "POST": [{ path: "", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "msg", event: event, context: context }));
-        } }, { path: "/people", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
-        } }, { path: "/locations", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
-        } }, { path: "/listings", handler: function handler(event, context, callback) {
-            callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
-        } }]
-};
-function processEvent(event, context, callback) {
-    event.path = event.path.split(rootPath)[1];
-    if (event.path.substr(-1) === "/") {
-        event.path = event.path.substr(0, event.path.length - 1);
-    }
-    if (routes[event.httpMethod]) {
-        var handler;
-        var validator;
-        var params;
-        for (var a in routes[event.httpMethod]) {
-            /*if(routes[event.httpMethod][a].path === event.path){
-                if(routes[event.httpMethod][a].handler && typeof routes[event.httpMethod][a].handler === 'function'){
-                    handler = routes[event.httpMethod][a].handler
-                }
-                if(routes[event.httpMethod][a].validator && typeof routes[event.httpMethod][a].validator === 'object'){
-                    validator = routes[event.httpMethod][a].validator
-                }
-                
-                break
-            }*/
-            console.log('route');
-            var match = route(routes[event.httpMethod][a].path);
-            console.log('match');
-            params = match(event.path);
-            console.log('params', event.path);
-            //console.log('routes[event.httpMethod][a].path',routes[event.httpMethod][a].path)
-            if (params !== false) {
-                handler = routes[event.httpMethod][a].handler;
-                validator = routes[event.httpMethod][a].validator;
-                console.log('params-', params);
-                break;
-            } else {
-                console.log('notmatched >', routes[event.httpMethod][a].path);
-            }
-        }
-        if (validator) {}
-        if (handler) {
-            handler(event, context, callback);
-        } else {
-            callback(null, lamdaResponse(Boom.notFound()));
-        }
-    } else {
-        callback(null, lamdaResponse(Boom.notFound()));
-    }
-    //console.log('Calling MongoDB Atlas from AWS Lambda with event: ' + JSON.stringify(event));
-
-
-    /*var jsonContents = JSON.parse(JSON.stringify(event));
-     
-     //date conversion for grades array
-    if (jsonContents.grades != null) {
-        for (var i = 0, len = jsonContents.grades.length; i < len; i++) {
-            //use the following line if you want to preserve the original dates
-            //jsonContents.grades[i].date = new Date(jsonContents.grades[i].date);
-             //the following line assigns the current date so we can more easily differentiate between similar records
-            jsonContents.grades[i].date = new Date();
-        }
-    }
-     try {
-        //testing if the database connection exists and is connected to Atlas so we can try to re-use it
-        if (cachedDb && cachedDb.serverConfig.isConnected()) {
-            createDoc(cachedDb, jsonContents, callback);
-        }
-        else {
-            //some performance penalty might be incurred when running that database connection initialization code
-            console.log(`=> connecting to database ${atlas_connection_uri}`);
-            MongoClient.connect(atlas_connection_uri, function (err, db) {
-                if (err) {
-                    console.log(`the error is ${err}.`, err)
-                    process.exit(1)
-                }
-                cachedDb = db;
-                return createDoc(db, jsonContents, callback);
-            });            
-        }
-    }
-    catch (err) {
-        console.error('an error occurred', err);
-    }*/
-}
-
-function createDoc(db, json, callback) {
-    db.collection('restaurants').insertOne(json, function (err, result) {
-        if (err != null) {
-            console.error("an error occurred in createDoc", err);
-            callback(null, JSON.stringify(err));
-        } else {
-            var message = 'Kudos! You just created an entry into the restaurants collection with id: ' + result.insertedId;
-            console.log(message);
-            callback(null, message);
-        }
-        //we don't want to close the connection since we set context.callbackWaitsForEmptyEventLoop to false (see above)
-        //this will let our function re-use the connection on the next called (if it can re-use the same Lambda container)
-        //db.close();
-    });
-};
-
-/***/ }),
-
-/***/ 202:
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -258,452 +81,12 @@ function createDoc(db, json, callback) {
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-
-
-// Declare internals
-
-const internals = {
-    codes: new Map([
-        [100, 'Continue'],
-        [101, 'Switching Protocols'],
-        [102, 'Processing'],
-        [200, 'OK'],
-        [201, 'Created'],
-        [202, 'Accepted'],
-        [203, 'Non-Authoritative Information'],
-        [204, 'No Content'],
-        [205, 'Reset Content'],
-        [206, 'Partial Content'],
-        [207, 'Multi-Status'],
-        [300, 'Multiple Choices'],
-        [301, 'Moved Permanently'],
-        [302, 'Moved Temporarily'],
-        [303, 'See Other'],
-        [304, 'Not Modified'],
-        [305, 'Use Proxy'],
-        [307, 'Temporary Redirect'],
-        [400, 'Bad Request'],
-        [401, 'Unauthorized'],
-        [402, 'Payment Required'],
-        [403, 'Forbidden'],
-        [404, 'Not Found'],
-        [405, 'Method Not Allowed'],
-        [406, 'Not Acceptable'],
-        [407, 'Proxy Authentication Required'],
-        [408, 'Request Time-out'],
-        [409, 'Conflict'],
-        [410, 'Gone'],
-        [411, 'Length Required'],
-        [412, 'Precondition Failed'],
-        [413, 'Request Entity Too Large'],
-        [414, 'Request-URI Too Large'],
-        [415, 'Unsupported Media Type'],
-        [416, 'Requested Range Not Satisfiable'],
-        [417, 'Expectation Failed'],
-        [418, 'I\'m a teapot'],
-        [422, 'Unprocessable Entity'],
-        [423, 'Locked'],
-        [424, 'Failed Dependency'],
-        [425, 'Unordered Collection'],
-        [426, 'Upgrade Required'],
-        [428, 'Precondition Required'],
-        [429, 'Too Many Requests'],
-        [431, 'Request Header Fields Too Large'],
-        [451, 'Unavailable For Legal Reasons'],
-        [500, 'Internal Server Error'],
-        [501, 'Not Implemented'],
-        [502, 'Bad Gateway'],
-        [503, 'Service Unavailable'],
-        [504, 'Gateway Time-out'],
-        [505, 'HTTP Version Not Supported'],
-        [506, 'Variant Also Negotiates'],
-        [507, 'Insufficient Storage'],
-        [509, 'Bandwidth Limit Exceeded'],
-        [510, 'Not Extended'],
-        [511, 'Network Authentication Required']
-    ])
-};
-
-
-module.exports = internals.Boom = class extends Error {
-
-    static [Symbol.hasInstance](instance) {
-
-        return internals.Boom.isBoom(instance);
-    }
-
-    constructor(message, options = {}) {
-
-        if (message instanceof Error) {
-            return internals.Boom.boomify(Hoek.clone(message), options);
-        }
-
-        const { statusCode = 500, data = null, ctor = internals.Boom } = options;
-        const error = new Error(message ? message : undefined);         // Avoids settings null message
-        Error.captureStackTrace(error, ctor);                           // Filter the stack to our external API
-        error.data = data;
-        internals.initialize(error, statusCode);
-        error.typeof = ctor;
-
-        if (options.decorate) {
-            Object.assign(error, options.decorate);
-        }
-
-        return error;
-    }
-
-    static isBoom(err) {
-
-        return (err instanceof Error && !!err.isBoom);
-    }
-
-    static boomify(err, options) {
-
-        Hoek.assert(err instanceof Error, 'Cannot wrap non-Error object');
-
-        options = options || {};
-
-        if (options.data !== undefined) {
-            err.data = options.data;
-        }
-
-        if (options.decorate) {
-            Object.assign(err, options.decorate);
-        }
-
-        if (!err.isBoom) {
-            return internals.initialize(err, options.statusCode || 500, options.message);
-        }
-
-        if (options.override === false ||                           // Defaults to true
-            (!options.statusCode && !options.message)) {
-
-            return err;
-        }
-
-        return internals.initialize(err, options.statusCode || err.output.statusCode, options.message);
-    }
-
-    // 4xx Client Errors
-
-    static badRequest(message, data) {
-
-        return new internals.Boom(message, { statusCode: 400, data, ctor: internals.Boom.badRequest });
-    }
-
-    static unauthorized(message, scheme, attributes) {          // Or function (message, wwwAuthenticate[])
-
-        const err = new internals.Boom(message, { statusCode: 401, ctor: internals.Boom.unauthorized });
-
-        if (!scheme) {
-            return err;
-        }
-
-        let wwwAuthenticate = '';
-
-        if (typeof scheme === 'string') {
-
-            // function (message, scheme, attributes)
-
-            wwwAuthenticate = scheme;
-
-            if (attributes || message) {
-                err.output.payload.attributes = {};
-            }
-
-            if (attributes) {
-                if (typeof attributes === 'string') {
-                    wwwAuthenticate = wwwAuthenticate + ' ' + Hoek.escapeHeaderAttribute(attributes);
-                    err.output.payload.attributes = attributes;
-                }
-                else {
-                    const names = Object.keys(attributes);
-                    for (let i = 0; i < names.length; ++i) {
-                        const name = names[i];
-                        if (i) {
-                            wwwAuthenticate = wwwAuthenticate + ',';
-                        }
-
-                        let value = attributes[name];
-                        if (value === null ||
-                            value === undefined) {              // Value can be zero
-
-                            value = '';
-                        }
-                        wwwAuthenticate = wwwAuthenticate + ' ' + name + '="' + Hoek.escapeHeaderAttribute(value.toString()) + '"';
-                        err.output.payload.attributes[name] = value;
-                    }
-                }
-            }
-
-
-            if (message) {
-                if (attributes) {
-                    wwwAuthenticate = wwwAuthenticate + ',';
-                }
-                wwwAuthenticate = wwwAuthenticate + ' error="' + Hoek.escapeHeaderAttribute(message) + '"';
-                err.output.payload.attributes.error = message;
-            }
-            else {
-                err.isMissing = true;
-            }
-        }
-        else {
-
-            // function (message, wwwAuthenticate[])
-
-            const wwwArray = scheme;
-            for (let i = 0; i < wwwArray.length; ++i) {
-                if (i) {
-                    wwwAuthenticate = wwwAuthenticate + ', ';
-                }
-
-                wwwAuthenticate = wwwAuthenticate + wwwArray[i];
-            }
-        }
-
-        err.output.headers['WWW-Authenticate'] = wwwAuthenticate;
-
-        return err;
-    }
-
-    static paymentRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 402, data, ctor: internals.Boom.paymentRequired });
-    }
-
-    static forbidden(message, data) {
-
-        return new internals.Boom(message, { statusCode: 403, data, ctor: internals.Boom.forbidden });
-    }
-
-    static notFound(message, data) {
-
-        return new internals.Boom(message, { statusCode: 404, data, ctor: internals.Boom.notFound });
-    }
-
-    static methodNotAllowed(message, data, allow) {
-
-        const err = new internals.Boom(message, { statusCode: 405, data, ctor: internals.Boom.methodNotAllowed });
-
-        if (typeof allow === 'string') {
-            allow = [allow];
-        }
-
-        if (Array.isArray(allow)) {
-            err.output.headers.Allow = allow.join(', ');
-        }
-
-        return err;
-    }
-
-    static notAcceptable(message, data) {
-
-        return new internals.Boom(message, { statusCode: 406, data, ctor: internals.Boom.notAcceptable });
-    }
-
-    static proxyAuthRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 407, data, ctor: internals.Boom.proxyAuthRequired });
-    }
-
-    static clientTimeout(message, data) {
-
-        return new internals.Boom(message, { statusCode: 408, data, ctor: internals.Boom.clientTimeout });
-    }
-
-    static conflict(message, data) {
-
-        return new internals.Boom(message, { statusCode: 409, data, ctor: internals.Boom.conflict });
-    }
-
-    static resourceGone(message, data) {
-
-        return new internals.Boom(message, { statusCode: 410, data, ctor: internals.Boom.resourceGone });
-    }
-
-    static lengthRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 411, data, ctor: internals.Boom.lengthRequired });
-    }
-
-    static preconditionFailed(message, data) {
-
-        return new internals.Boom(message, { statusCode: 412, data, ctor: internals.Boom.preconditionFailed });
-    }
-
-    static entityTooLarge(message, data) {
-
-        return new internals.Boom(message, { statusCode: 413, data, ctor: internals.Boom.entityTooLarge });
-    }
-
-    static uriTooLong(message, data) {
-
-        return new internals.Boom(message, { statusCode: 414, data, ctor: internals.Boom.uriTooLong });
-    }
-
-    static unsupportedMediaType(message, data) {
-
-        return new internals.Boom(message, { statusCode: 415, data, ctor: internals.Boom.unsupportedMediaType });
-    }
-
-    static rangeNotSatisfiable(message, data) {
-
-        return new internals.Boom(message, { statusCode: 416, data, ctor: internals.Boom.rangeNotSatisfiable });
-    }
-
-    static expectationFailed(message, data) {
-
-        return new internals.Boom(message, { statusCode: 417, data, ctor: internals.Boom.expectationFailed });
-    }
-
-    static teapot(message, data) {
-
-        return new internals.Boom(message, { statusCode: 418, data, ctor: internals.Boom.teapot });
-    }
-
-    static badData(message, data) {
-
-        return new internals.Boom(message, { statusCode: 422, data, ctor: internals.Boom.badData });
-    }
-
-    static locked(message, data) {
-
-        return new internals.Boom(message, { statusCode: 423, data, ctor: internals.Boom.locked });
-    }
-
-    static preconditionRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 428, data, ctor: internals.Boom.preconditionRequired });
-    }
-
-    static tooManyRequests(message, data) {
-
-        return new internals.Boom(message, { statusCode: 429, data, ctor: internals.Boom.tooManyRequests });
-    }
-
-    static illegal(message, data) {
-
-        return new internals.Boom(message, { statusCode: 451, data, ctor: internals.Boom.illegal });
-    }
-
-    // 5xx Server Errors
-
-    static internal(message, data, statusCode = 500) {
-
-        return internals.serverError(message, data, statusCode, internals.Boom.internal);
-    }
-
-    static notImplemented(message, data) {
-
-        return internals.serverError(message, data, 501, internals.Boom.notImplemented);
-    }
-
-    static badGateway(message, data) {
-
-        return internals.serverError(message, data, 502, internals.Boom.badGateway);
-    }
-
-    static serverUnavailable(message, data) {
-
-        return internals.serverError(message, data, 503, internals.Boom.serverUnavailable);
-    }
-
-    static gatewayTimeout(message, data) {
-
-        return internals.serverError(message, data, 504, internals.Boom.gatewayTimeout);
-    }
-
-    static badImplementation(message, data) {
-
-        const err = internals.serverError(message, data, 500, internals.Boom.badImplementation);
-        err.isDeveloperError = true;
-        return err;
-    }
-};
-
-
-
-internals.initialize = function (err, statusCode, message) {
-
-    const numberCode = parseInt(statusCode, 10);
-    Hoek.assert(!isNaN(numberCode) && numberCode >= 400, 'First argument must be a number (400+):', statusCode);
-
-    err.isBoom = true;
-    err.isServer = numberCode >= 500;
-
-    if (!err.hasOwnProperty('data')) {
-        err.data = null;
-    }
-
-    err.output = {
-        statusCode: numberCode,
-        payload: {},
-        headers: {}
-    };
-
-    err.reformat = internals.reformat;
-
-    if (!message &&
-        !err.message) {
-
-        err.reformat();
-        message = err.output.payload.error;
-    }
-
-    if (message) {
-        err.message = (message + (err.message ? ': ' + err.message : ''));
-        err.output.payload.message = err.message;
-    }
-
-    err.reformat();
-    return err;
-};
-
-
-internals.reformat = function () {
-
-    this.output.payload.statusCode = this.output.statusCode;
-    this.output.payload.error = internals.codes.get(this.output.statusCode) || 'Unknown';
-
-    if (this.output.statusCode === 500) {
-        this.output.payload.message = 'An internal server error occurred';              // Hide actual error from user
-    }
-    else if (this.message) {
-        this.output.payload.message = this.message;
-    }
-};
-
-
-internals.serverError = function (message, data, statusCode, ctor) {
-
-    if (data instanceof Error &&
-        !data.isBoom) {
-
-        return internals.Boom.boomify(data, { statusCode, message });
-    }
-
-    return new internals.Boom(message, { statusCode, data, ctor });
-};
-
-
-/***/ }),
-
-/***/ 203:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// Load modules
-
-const Assert = __webpack_require__(204);
-const Crypto = __webpack_require__(18);
-const Path = __webpack_require__(19);
-const Util = __webpack_require__(12);
-
-const Escape = __webpack_require__(205);
+const Assert = __webpack_require__(228);
+const Crypto = __webpack_require__(12);
+const Path = __webpack_require__(15);
+const Util = __webpack_require__(5);
+
+const Escape = __webpack_require__(229);
 
 
 // Declare internals
@@ -1658,191 +1041,14 @@ exports.block = function () {
 
 
 /***/ }),
-
-/***/ 204:
+/* 5 */
 /***/ (function(module, exports) {
 
-module.exports = require("assert");
+module.exports = require("util");
 
 /***/ }),
-
-/***/ 205:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// Declare internals
-
-const internals = {};
-
-
-exports.escapeJavaScript = function (input) {
-
-    if (!input) {
-        return '';
-    }
-
-    let escaped = '';
-
-    for (let i = 0; i < input.length; ++i) {
-
-        const charCode = input.charCodeAt(i);
-
-        if (internals.isSafe(charCode)) {
-            escaped += input[i];
-        }
-        else {
-            escaped += internals.escapeJavaScriptChar(charCode);
-        }
-    }
-
-    return escaped;
-};
-
-
-exports.escapeHtml = function (input) {
-
-    if (!input) {
-        return '';
-    }
-
-    let escaped = '';
-
-    for (let i = 0; i < input.length; ++i) {
-
-        const charCode = input.charCodeAt(i);
-
-        if (internals.isSafe(charCode)) {
-            escaped += input[i];
-        }
-        else {
-            escaped += internals.escapeHtmlChar(charCode);
-        }
-    }
-
-    return escaped;
-};
-
-
-exports.escapeJson = function (input) {
-
-    if (!input) {
-        return '';
-    }
-
-    const lessThan = 0x3C;
-    const greaterThan = 0x3E;
-    const andSymbol = 0x26;
-    const lineSeperator = 0x2028;
-
-    // replace method
-    let charCode;
-    return input.replace(/[<>&\u2028\u2029]/g, (match) => {
-
-        charCode = match.charCodeAt(0);
-
-        if (charCode === lessThan) {
-            return '\\u003c';
-        }
-        else if (charCode === greaterThan) {
-            return '\\u003e';
-        }
-        else if (charCode === andSymbol) {
-            return '\\u0026';
-        }
-        else if (charCode === lineSeperator) {
-            return '\\u2028';
-        }
-        return '\\u2029';
-    });
-};
-
-
-internals.escapeJavaScriptChar = function (charCode) {
-
-    if (charCode >= 256) {
-        return '\\u' + internals.padLeft('' + charCode, 4);
-    }
-
-    const hexValue = Buffer.from(String.fromCharCode(charCode), 'ascii').toString('hex');
-    return '\\x' + internals.padLeft(hexValue, 2);
-};
-
-
-internals.escapeHtmlChar = function (charCode) {
-
-    const namedEscape = internals.namedHtml[charCode];
-    if (typeof namedEscape !== 'undefined') {
-        return namedEscape;
-    }
-
-    if (charCode >= 256) {
-        return '&#' + charCode + ';';
-    }
-
-    const hexValue = Buffer.from(String.fromCharCode(charCode), 'ascii').toString('hex');
-    return '&#x' + internals.padLeft(hexValue, 2) + ';';
-};
-
-
-internals.padLeft = function (str, len) {
-
-    while (str.length < len) {
-        str = '0' + str;
-    }
-
-    return str;
-};
-
-
-internals.isSafe = function (charCode) {
-
-    return (typeof internals.safeCharCodes[charCode] !== 'undefined');
-};
-
-
-internals.namedHtml = {
-    '38': '&amp;',
-    '60': '&lt;',
-    '62': '&gt;',
-    '34': '&quot;',
-    '160': '&nbsp;',
-    '162': '&cent;',
-    '163': '&pound;',
-    '164': '&curren;',
-    '169': '&copy;',
-    '174': '&reg;'
-};
-
-
-internals.safeCharCodes = (function () {
-
-    const safe = {};
-
-    for (let i = 32; i < 123; ++i) {
-
-        if ((i >= 97) ||                    // a-z
-            (i >= 65 && i <= 90) ||         // A-Z
-            (i >= 48 && i <= 57) ||         // 0-9
-            i === 32 ||                     // space
-            i === 46 ||                     // .
-            i === 44 ||                     // ,
-            i === 45 ||                     // -
-            i === 58 ||                     // :
-            i === 95) {                     // _
-
-            safe[i] = null;
-        }
-    }
-
-    return safe;
-}());
-
-
-/***/ }),
-
-/***/ 206:
+/* 6 */,
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1850,9 +1056,9 @@ internals.safeCharCodes = (function () {
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-const Ref = __webpack_require__(207);
-const Errors = __webpack_require__(209);
+const Hoek = __webpack_require__(4);
+const Ref = __webpack_require__(8);
+const Errors = __webpack_require__(38);
 let Alternatives = null;                // Delay-loaded to prevent circular dependencies
 let Cast = null;
 
@@ -1860,7 +1066,7 @@ let Cast = null;
 // Declare internals
 
 const internals = {
-    Set: __webpack_require__(211)
+    Set: __webpack_require__(157)
 };
 
 
@@ -1884,7 +1090,7 @@ module.exports = internals.Any = class {
 
     constructor() {
 
-        Cast = Cast || __webpack_require__(208);
+        Cast = Cast || __webpack_require__(18);
 
         this.isJoi = true;
         this._type = 'any';
@@ -1938,7 +1144,7 @@ module.exports = internals.Any = class {
 
     checkOptions(options) {
 
-        const Schemas = __webpack_require__(217);
+        const Schemas = __webpack_require__(231);
         const result = Schemas.options.validate(options);
         if (result.error) {
             throw new Error(result.error.details[0].message);
@@ -2242,7 +1448,7 @@ module.exports = internals.Any = class {
         const then = options.hasOwnProperty('then') ? this.concat(Cast.schema(this._currentJoi, options.then)) : undefined;
         const otherwise = options.hasOwnProperty('otherwise') ? this.concat(Cast.schema(this._currentJoi, options.otherwise)) : undefined;
 
-        Alternatives = Alternatives || __webpack_require__(212);
+        Alternatives = Alternatives || __webpack_require__(158);
 
         const alternativeOptions = { then, otherwise };
         if (Object.prototype.hasOwnProperty.call(options, 'is')) {
@@ -2761,8 +1967,7 @@ internals.concatSettings = function (target, source) {
 
 
 /***/ }),
-
-/***/ 207:
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2770,7 +1975,7 @@ internals.concatSettings = function (target, source) {
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -2822,8 +2027,26 @@ exports.push = function (array, ref) {
 
 
 /***/ }),
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */
+/***/ (function(module, exports) {
 
-/***/ 208:
+module.exports = require("crypto");
+
+/***/ }),
+/* 13 */,
+/* 14 */,
+/* 15 */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
+
+/***/ }),
+/* 16 */,
+/* 17 */,
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2831,8 +2054,8 @@ exports.push = function (array, ref) {
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-const Ref = __webpack_require__(207);
+const Hoek = __webpack_require__(4);
+const Ref = __webpack_require__(8);
 
 // Type modules are delay-loaded to prevent circular dependencies
 
@@ -2894,379 +2117,66 @@ exports.ref = function (id) {
 
 
 /***/ }),
-
-/***/ 209:
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-// Load modules
-
-const Hoek = __webpack_require__(203);
-const Language = __webpack_require__(216);
-
-
-// Declare internals
-
-const internals = {
-    annotations: Symbol('joi-annotations')
-};
-
-internals.stringify = function (value, wrapArrays) {
-
-    const type = typeof value;
-
-    if (value === null) {
-        return 'null';
-    }
-
-    if (type === 'string') {
-        return value;
-    }
-
-    if (value instanceof exports.Err || type === 'function' || type === 'symbol') {
-        return value.toString();
-    }
-
-    if (type === 'object') {
-        if (Array.isArray(value)) {
-            let partial = '';
-
-            for (let i = 0; i < value.length; ++i) {
-                partial = partial + (partial.length ? ', ' : '') + internals.stringify(value[i], wrapArrays);
-            }
-
-            return wrapArrays ? '[' + partial + ']' : partial;
-        }
-
-        return value.toString();
-    }
-
-    return JSON.stringify(value);
-};
-
-exports.Err = class {
-
-    constructor(type, context, state, options, flags, message, template) {
-
-        this.isJoi = true;
-        this.type = type;
-        this.context = context || {};
-        this.context.key = state.path[state.path.length - 1];
-        this.context.label = state.key;
-        this.path = state.path;
-        this.options = options;
-        this.flags = flags;
-        this.message = message;
-        this.template = template;
-
-        const localized = this.options.language;
-
-        if (this.flags.label) {
-            this.context.label = this.flags.label;
-        }
-        else if (localized &&                   // language can be null for arrays exclusion check
-            (this.context.label === '' ||
-            this.context.label === null)) {
-            this.context.label = localized.root || Language.errors.root;
-        }
-    }
-
-    toString() {
-
-        if (this.message) {
-            return this.message;
-        }
-
-        let format;
-
-        if (this.template) {
-            format = this.template;
-        }
-
-        const localized = this.options.language;
-
-        format = format || Hoek.reach(localized, this.type) || Hoek.reach(Language.errors, this.type);
-
-        if (format === undefined) {
-            return `Error code "${this.type}" is not defined, your custom type is missing the correct language definition`;
-        }
-
-        let wrapArrays = Hoek.reach(localized, 'messages.wrapArrays');
-        if (typeof wrapArrays !== 'boolean') {
-            wrapArrays = Language.errors.messages.wrapArrays;
-        }
-
-        if (format === null) {
-            const childrenString = internals.stringify(this.context.reason, wrapArrays);
-            if (wrapArrays) {
-                return childrenString.slice(1, -1);
-            }
-            return childrenString;
-        }
-
-        const hasKey = /\{\{\!?label\}\}/.test(format);
-        const skipKey = format.length > 2 && format[0] === '!' && format[1] === '!';
-
-        if (skipKey) {
-            format = format.slice(2);
-        }
-
-        if (!hasKey && !skipKey) {
-            const localizedKey = Hoek.reach(localized, 'key');
-            if (typeof localizedKey === 'string') {
-                format = localizedKey + format;
-            }
-            else {
-                format = Hoek.reach(Language.errors, 'key') + format;
-            }
-        }
-
-        return format.replace(/\{\{(\!?)([^}]+)\}\}/g, ($0, isSecure, name) => {
-
-            const value = Hoek.reach(this.context, name);
-            const normalized = internals.stringify(value, wrapArrays);
-            return (isSecure && this.options.escapeHtml ? Hoek.escapeHtml(normalized) : normalized);
-        });
-    }
-
-};
-
-
-exports.create = function (type, context, state, options, flags, message, template) {
-
-    return new exports.Err(type, context, state, options, flags, message, template);
-};
-
-
-exports.process = function (errors, object) {
-
-    if (!errors || !errors.length) {
-        return null;
-    }
-
-    // Construct error
-
-    let message = '';
-    const details = [];
-
-    const processErrors = function (localErrors, parent) {
-
-        for (let i = 0; i < localErrors.length; ++i) {
-            const item = localErrors[i];
-
-            if (item instanceof Error) {
-                return item;
-            }
-
-            if (item.flags.error && typeof item.flags.error !== 'function') {
-                return item.flags.error;
-            }
-
-            let itemMessage;
-            if (parent === undefined) {
-                itemMessage = item.toString();
-                message = message + (message ? '. ' : '') + itemMessage;
-            }
-
-            // Do not push intermediate errors, we're only interested in leafs
-
-            if (item.context.reason && item.context.reason.length) {
-                const override = processErrors(item.context.reason, item.path);
-                if (override) {
-                    return override;
-                }
-            }
-            else {
-                details.push({
-                    message: itemMessage || item.toString(),
-                    path: item.path,
-                    type: item.type,
-                    context: item.context
-                });
-            }
-        }
-    };
-
-    const override = processErrors(errors);
-    if (override) {
-        return override;
-    }
-
-    const error = new Error(message);
-    error.isJoi = true;
-    error.name = 'ValidationError';
-    error.details = details;
-    error._object = object;
-    error.annotate = internals.annotate;
-    return error;
-};
-
-
-// Inspired by json-stringify-safe
-internals.safeStringify = function (obj, spaces) {
-
-    return JSON.stringify(obj, internals.serializer(), spaces);
-};
-
-internals.serializer = function () {
-
-    const keys = [];
-    const stack = [];
-
-    const cycleReplacer = (key, value) => {
-
-        if (stack[0] === value) {
-            return '[Circular ~]';
-        }
-
-        return '[Circular ~.' + keys.slice(0, stack.indexOf(value)).join('.') + ']';
-    };
-
-    return function (key, value) {
-
-        if (stack.length > 0) {
-            const thisPos = stack.indexOf(this);
-            if (~thisPos) {
-                stack.length = thisPos + 1;
-                keys.length = thisPos + 1;
-                keys[thisPos] = key;
-            }
-            else {
-                stack.push(this);
-                keys.push(key);
-            }
-
-            if (~stack.indexOf(value)) {
-                value = cycleReplacer.call(this, key, value);
-            }
-        }
-        else {
-            stack.push(value);
-        }
-
-        if (value) {
-            const annotations = value[internals.annotations];
-            if (annotations) {
-                if (Array.isArray(value)) {
-                    const annotated = [];
-
-                    for (let i = 0; i < value.length; ++i) {
-                        if (annotations.errors[i]) {
-                            annotated.push(`_$idx$_${annotations.errors[i].sort().join(', ')}_$end$_`);
-                        }
-                        annotated.push(value[i]);
-                    }
-
-                    value = annotated;
-                }
-                else {
-                    const errorKeys = Object.keys(annotations.errors);
-                    for (let i = 0; i < errorKeys.length; ++i) {
-                        const errorKey = errorKeys[i];
-                        value[`${errorKey}_$key$_${annotations.errors[errorKey].sort().join(', ')}_$end$_`] = value[errorKey];
-                        value[errorKey] = undefined;
-                    }
-
-                    const missingKeys = Object.keys(annotations.missing);
-                    for (let i = 0; i < missingKeys.length; ++i) {
-                        const missingKey = missingKeys[i];
-                        value[`_$miss$_${missingKey}|${annotations.missing[missingKey]}_$end$_`] = '__missing__';
-                    }
-                }
-
-                return value;
-            }
-        }
-
-        if (value === Infinity || value === -Infinity || Number.isNaN(value) ||
-            typeof value === 'function' || typeof value === 'symbol') {
-            return '[' + value.toString() + ']';
-        }
-
-        return value;
-    };
-};
-
-
-internals.annotate = function (stripColorCodes) {
-
-    const redFgEscape = stripColorCodes ? '' : '\u001b[31m';
-    const redBgEscape = stripColorCodes ? '' : '\u001b[41m';
-    const endColor = stripColorCodes ? '' : '\u001b[0m';
-
-    if (typeof this._object !== 'object') {
-        return this.details[0].message;
-    }
-
-    const obj = Hoek.clone(this._object || {});
-
-    for (let i = this.details.length - 1; i >= 0; --i) {        // Reverse order to process deepest child first
-        const pos = i + 1;
-        const error = this.details[i];
-        const path = error.path;
-        let ref = obj;
-        for (let j = 0; ; ++j) {
-            const seg = path[j];
-
-            if (ref.isImmutable) {
-                ref = ref.clone();                              // joi schemas are not cloned by hoek, we have to take this extra step
-            }
-
-            if (j + 1 < path.length &&
-                ref[seg] &&
-                typeof ref[seg] !== 'string') {
-
-                ref = ref[seg];
-            }
-            else {
-                const refAnnotations = ref[internals.annotations] = ref[internals.annotations] || { errors: {}, missing: {} };
-                const value = ref[seg];
-                const cacheKey = seg || error.context.label;
-
-                if (value !== undefined) {
-                    refAnnotations.errors[cacheKey] = refAnnotations.errors[cacheKey] || [];
-                    refAnnotations.errors[cacheKey].push(pos);
-                }
-                else {
-                    refAnnotations.missing[cacheKey] = pos;
-                }
-
-                break;
-            }
-        }
-    }
-
-    const replacers = {
-        key: /_\$key\$_([, \d]+)_\$end\$_\"/g,
-        missing: /\"_\$miss\$_([^\|]+)\|(\d+)_\$end\$_\"\: \"__missing__\"/g,
-        arrayIndex: /\s*\"_\$idx\$_([, \d]+)_\$end\$_\",?\n(.*)/g,
-        specials: /"\[(NaN|Symbol.*|-?Infinity|function.*|\(.*)\]"/g
-    };
-
-    let message = internals.safeStringify(obj, 2)
-        .replace(replacers.key, ($0, $1) => `" ${redFgEscape}[${$1}]${endColor}`)
-        .replace(replacers.missing, ($0, $1, $2) => `${redBgEscape}"${$1}"${endColor}${redFgEscape} [${$2}]: -- missing --${endColor}`)
-        .replace(replacers.arrayIndex, ($0, $1, $2) => `\n${$2} ${redFgEscape}[${$1}]${endColor}`)
-        .replace(replacers.specials, ($0, $1) => $1);
-
-    message = `${message}\n${redFgEscape}`;
-
-    for (let i = 0; i < this.details.length; ++i) {
-        const pos = i + 1;
-        message = `${message}\n[${pos}] ${this.details[i].message}`;
-    }
-
-    message = message + endColor;
-
-    return message;
-};
+module.exports = __webpack_require__(253).default;
+module.exports.default = module.exports;
 
 
 /***/ }),
+/* 24 */
+/***/ (function(module, exports) {
 
-/***/ 210:
+module.exports = require("buffer");
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+var JsonWebTokenError = function (message, error) {
+  Error.call(this, message);
+  if(Error.captureStackTrace) {
+    Error.captureStackTrace(this, this.constructor);
+  }
+  this.name = 'JsonWebTokenError';
+  this.message = message;
+  if (error) this.inner = error;
+};
+
+JsonWebTokenError.prototype = Object.create(Error.prototype);
+JsonWebTokenError.prototype.constructor = JsonWebTokenError;
+
+module.exports = JsonWebTokenError;
+
+
+/***/ }),
+/* 26 */,
+/* 27 */,
+/* 28 */
+/***/ (function(module, exports) {
+
+module.exports = require("net");
+
+/***/ }),
+/* 29 */,
+/* 30 */,
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 36 */,
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3274,26 +2184,26 @@ internals.annotate = function (stripColorCodes) {
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-const Any = __webpack_require__(206);
-const Cast = __webpack_require__(208);
-const Errors = __webpack_require__(209);
-const Lazy = __webpack_require__(218);
-const Ref = __webpack_require__(207);
+const Hoek = __webpack_require__(4);
+const Any = __webpack_require__(7);
+const Cast = __webpack_require__(18);
+const Errors = __webpack_require__(38);
+const Lazy = __webpack_require__(232);
+const Ref = __webpack_require__(8);
 
 
 // Declare internals
 
 const internals = {
-    alternatives: __webpack_require__(212),
-    array: __webpack_require__(219),
-    boolean: __webpack_require__(220),
-    binary: __webpack_require__(221),
-    date: __webpack_require__(213),
-    func: __webpack_require__(222),
-    number: __webpack_require__(224),
-    object: __webpack_require__(214),
-    string: __webpack_require__(225)
+    alternatives: __webpack_require__(158),
+    array: __webpack_require__(233),
+    boolean: __webpack_require__(234),
+    binary: __webpack_require__(235),
+    date: __webpack_require__(159),
+    func: __webpack_require__(236),
+    number: __webpack_require__(238),
+    object: __webpack_require__(160),
+    string: __webpack_require__(239)
 };
 
 internals.applyDefaults = function (schema) {
@@ -3696,7 +2606,7 @@ internals.root = function () {
 
     root.extensionsSchema = internals.array.items([internals.object, internals.func.arity(1)]).strict();
 
-    root.version = __webpack_require__(230).version;
+    root.version = __webpack_require__(244).version;
 
     return root;
 };
@@ -3706,14 +2616,613 @@ module.exports = internals.root();
 
 
 /***/ }),
-
-/***/ 211:
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-const Ref = __webpack_require__(207);
+// Load modules
+
+const Hoek = __webpack_require__(4);
+const Language = __webpack_require__(230);
+
+
+// Declare internals
+
+const internals = {
+    annotations: Symbol('joi-annotations')
+};
+
+internals.stringify = function (value, wrapArrays) {
+
+    const type = typeof value;
+
+    if (value === null) {
+        return 'null';
+    }
+
+    if (type === 'string') {
+        return value;
+    }
+
+    if (value instanceof exports.Err || type === 'function' || type === 'symbol') {
+        return value.toString();
+    }
+
+    if (type === 'object') {
+        if (Array.isArray(value)) {
+            let partial = '';
+
+            for (let i = 0; i < value.length; ++i) {
+                partial = partial + (partial.length ? ', ' : '') + internals.stringify(value[i], wrapArrays);
+            }
+
+            return wrapArrays ? '[' + partial + ']' : partial;
+        }
+
+        return value.toString();
+    }
+
+    return JSON.stringify(value);
+};
+
+exports.Err = class {
+
+    constructor(type, context, state, options, flags, message, template) {
+
+        this.isJoi = true;
+        this.type = type;
+        this.context = context || {};
+        this.context.key = state.path[state.path.length - 1];
+        this.context.label = state.key;
+        this.path = state.path;
+        this.options = options;
+        this.flags = flags;
+        this.message = message;
+        this.template = template;
+
+        const localized = this.options.language;
+
+        if (this.flags.label) {
+            this.context.label = this.flags.label;
+        }
+        else if (localized &&                   // language can be null for arrays exclusion check
+            (this.context.label === '' ||
+            this.context.label === null)) {
+            this.context.label = localized.root || Language.errors.root;
+        }
+    }
+
+    toString() {
+
+        if (this.message) {
+            return this.message;
+        }
+
+        let format;
+
+        if (this.template) {
+            format = this.template;
+        }
+
+        const localized = this.options.language;
+
+        format = format || Hoek.reach(localized, this.type) || Hoek.reach(Language.errors, this.type);
+
+        if (format === undefined) {
+            return `Error code "${this.type}" is not defined, your custom type is missing the correct language definition`;
+        }
+
+        let wrapArrays = Hoek.reach(localized, 'messages.wrapArrays');
+        if (typeof wrapArrays !== 'boolean') {
+            wrapArrays = Language.errors.messages.wrapArrays;
+        }
+
+        if (format === null) {
+            const childrenString = internals.stringify(this.context.reason, wrapArrays);
+            if (wrapArrays) {
+                return childrenString.slice(1, -1);
+            }
+            return childrenString;
+        }
+
+        const hasKey = /\{\{\!?label\}\}/.test(format);
+        const skipKey = format.length > 2 && format[0] === '!' && format[1] === '!';
+
+        if (skipKey) {
+            format = format.slice(2);
+        }
+
+        if (!hasKey && !skipKey) {
+            const localizedKey = Hoek.reach(localized, 'key');
+            if (typeof localizedKey === 'string') {
+                format = localizedKey + format;
+            }
+            else {
+                format = Hoek.reach(Language.errors, 'key') + format;
+            }
+        }
+
+        return format.replace(/\{\{(\!?)([^}]+)\}\}/g, ($0, isSecure, name) => {
+
+            const value = Hoek.reach(this.context, name);
+            const normalized = internals.stringify(value, wrapArrays);
+            return (isSecure && this.options.escapeHtml ? Hoek.escapeHtml(normalized) : normalized);
+        });
+    }
+
+};
+
+
+exports.create = function (type, context, state, options, flags, message, template) {
+
+    return new exports.Err(type, context, state, options, flags, message, template);
+};
+
+
+exports.process = function (errors, object) {
+
+    if (!errors || !errors.length) {
+        return null;
+    }
+
+    // Construct error
+
+    let message = '';
+    const details = [];
+
+    const processErrors = function (localErrors, parent) {
+
+        for (let i = 0; i < localErrors.length; ++i) {
+            const item = localErrors[i];
+
+            if (item instanceof Error) {
+                return item;
+            }
+
+            if (item.flags.error && typeof item.flags.error !== 'function') {
+                return item.flags.error;
+            }
+
+            let itemMessage;
+            if (parent === undefined) {
+                itemMessage = item.toString();
+                message = message + (message ? '. ' : '') + itemMessage;
+            }
+
+            // Do not push intermediate errors, we're only interested in leafs
+
+            if (item.context.reason && item.context.reason.length) {
+                const override = processErrors(item.context.reason, item.path);
+                if (override) {
+                    return override;
+                }
+            }
+            else {
+                details.push({
+                    message: itemMessage || item.toString(),
+                    path: item.path,
+                    type: item.type,
+                    context: item.context
+                });
+            }
+        }
+    };
+
+    const override = processErrors(errors);
+    if (override) {
+        return override;
+    }
+
+    const error = new Error(message);
+    error.isJoi = true;
+    error.name = 'ValidationError';
+    error.details = details;
+    error._object = object;
+    error.annotate = internals.annotate;
+    return error;
+};
+
+
+// Inspired by json-stringify-safe
+internals.safeStringify = function (obj, spaces) {
+
+    return JSON.stringify(obj, internals.serializer(), spaces);
+};
+
+internals.serializer = function () {
+
+    const keys = [];
+    const stack = [];
+
+    const cycleReplacer = (key, value) => {
+
+        if (stack[0] === value) {
+            return '[Circular ~]';
+        }
+
+        return '[Circular ~.' + keys.slice(0, stack.indexOf(value)).join('.') + ']';
+    };
+
+    return function (key, value) {
+
+        if (stack.length > 0) {
+            const thisPos = stack.indexOf(this);
+            if (~thisPos) {
+                stack.length = thisPos + 1;
+                keys.length = thisPos + 1;
+                keys[thisPos] = key;
+            }
+            else {
+                stack.push(this);
+                keys.push(key);
+            }
+
+            if (~stack.indexOf(value)) {
+                value = cycleReplacer.call(this, key, value);
+            }
+        }
+        else {
+            stack.push(value);
+        }
+
+        if (value) {
+            const annotations = value[internals.annotations];
+            if (annotations) {
+                if (Array.isArray(value)) {
+                    const annotated = [];
+
+                    for (let i = 0; i < value.length; ++i) {
+                        if (annotations.errors[i]) {
+                            annotated.push(`_$idx$_${annotations.errors[i].sort().join(', ')}_$end$_`);
+                        }
+                        annotated.push(value[i]);
+                    }
+
+                    value = annotated;
+                }
+                else {
+                    const errorKeys = Object.keys(annotations.errors);
+                    for (let i = 0; i < errorKeys.length; ++i) {
+                        const errorKey = errorKeys[i];
+                        value[`${errorKey}_$key$_${annotations.errors[errorKey].sort().join(', ')}_$end$_`] = value[errorKey];
+                        value[errorKey] = undefined;
+                    }
+
+                    const missingKeys = Object.keys(annotations.missing);
+                    for (let i = 0; i < missingKeys.length; ++i) {
+                        const missingKey = missingKeys[i];
+                        value[`_$miss$_${missingKey}|${annotations.missing[missingKey]}_$end$_`] = '__missing__';
+                    }
+                }
+
+                return value;
+            }
+        }
+
+        if (value === Infinity || value === -Infinity || Number.isNaN(value) ||
+            typeof value === 'function' || typeof value === 'symbol') {
+            return '[' + value.toString() + ']';
+        }
+
+        return value;
+    };
+};
+
+
+internals.annotate = function (stripColorCodes) {
+
+    const redFgEscape = stripColorCodes ? '' : '\u001b[31m';
+    const redBgEscape = stripColorCodes ? '' : '\u001b[41m';
+    const endColor = stripColorCodes ? '' : '\u001b[0m';
+
+    if (typeof this._object !== 'object') {
+        return this.details[0].message;
+    }
+
+    const obj = Hoek.clone(this._object || {});
+
+    for (let i = this.details.length - 1; i >= 0; --i) {        // Reverse order to process deepest child first
+        const pos = i + 1;
+        const error = this.details[i];
+        const path = error.path;
+        let ref = obj;
+        for (let j = 0; ; ++j) {
+            const seg = path[j];
+
+            if (ref.isImmutable) {
+                ref = ref.clone();                              // joi schemas are not cloned by hoek, we have to take this extra step
+            }
+
+            if (j + 1 < path.length &&
+                ref[seg] &&
+                typeof ref[seg] !== 'string') {
+
+                ref = ref[seg];
+            }
+            else {
+                const refAnnotations = ref[internals.annotations] = ref[internals.annotations] || { errors: {}, missing: {} };
+                const value = ref[seg];
+                const cacheKey = seg || error.context.label;
+
+                if (value !== undefined) {
+                    refAnnotations.errors[cacheKey] = refAnnotations.errors[cacheKey] || [];
+                    refAnnotations.errors[cacheKey].push(pos);
+                }
+                else {
+                    refAnnotations.missing[cacheKey] = pos;
+                }
+
+                break;
+            }
+        }
+    }
+
+    const replacers = {
+        key: /_\$key\$_([, \d]+)_\$end\$_\"/g,
+        missing: /\"_\$miss\$_([^\|]+)\|(\d+)_\$end\$_\"\: \"__missing__\"/g,
+        arrayIndex: /\s*\"_\$idx\$_([, \d]+)_\$end\$_\",?\n(.*)/g,
+        specials: /"\[(NaN|Symbol.*|-?Infinity|function.*|\(.*)\]"/g
+    };
+
+    let message = internals.safeStringify(obj, 2)
+        .replace(replacers.key, ($0, $1) => `" ${redFgEscape}[${$1}]${endColor}`)
+        .replace(replacers.missing, ($0, $1, $2) => `${redBgEscape}"${$1}"${endColor}${redFgEscape} [${$2}]: -- missing --${endColor}`)
+        .replace(replacers.arrayIndex, ($0, $1, $2) => `\n${$2} ${redFgEscape}[${$1}]${endColor}`)
+        .replace(replacers.specials, ($0, $1) => $1);
+
+    message = `${message}\n${redFgEscape}`;
+
+    for (let i = 0; i < this.details.length; ++i) {
+        const pos = i + 1;
+        message = `${message}\n[${pos}] ${this.details[i].message}`;
+    }
+
+    message = message + endColor;
+
+    return message;
+};
+
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function lamdaResponse(json) {
+    if (json && json.isBoom) {
+        return { statusCode: json.output.statusCode,
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(json.output.payload) };
+    } else {
+        return { statusCode: 200,
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(json) };
+    }
+}
+module.exports = lamdaResponse;
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*global exports*/
+var SignStream = __webpack_require__(252);
+var VerifyStream = __webpack_require__(258);
+
+var ALGORITHMS = [
+  'HS256', 'HS384', 'HS512',
+  'RS256', 'RS384', 'RS512',
+  'ES256', 'ES384', 'ES512'
+];
+
+exports.ALGORITHMS = ALGORITHMS;
+exports.sign = SignStream.sign;
+exports.verify = VerifyStream.verify;
+exports.decode = VerifyStream.decode;
+exports.isValid = VerifyStream.isValid;
+exports.createSign = function createSign(opts) {
+  return new SignStream(opts);
+};
+exports.createVerify = function createVerify(opts) {
+  return new VerifyStream(opts);
+};
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* eslint-disable node/no-deprecated-api */
+var buffer = __webpack_require__(24)
+var Buffer = buffer.Buffer
+
+// alternative to using Object.keys for old browsers
+function copyProps (src, dst) {
+  for (var key in src) {
+    dst[key] = src[key]
+  }
+}
+if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
+  module.exports = buffer
+} else {
+  // Copy properties from require('buffer')
+  copyProps(buffer, exports)
+  exports.Buffer = SafeBuffer
+}
+
+function SafeBuffer (arg, encodingOrOffset, length) {
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+// Copy static methods from Buffer
+copyProps(Buffer, SafeBuffer)
+
+SafeBuffer.from = function (arg, encodingOrOffset, length) {
+  if (typeof arg === 'number') {
+    throw new TypeError('Argument must not be a number')
+  }
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+SafeBuffer.alloc = function (size, fill, encoding) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  var buf = Buffer(size)
+  if (fill !== undefined) {
+    if (typeof encoding === 'string') {
+      buf.fill(fill, encoding)
+    } else {
+      buf.fill(fill)
+    }
+  } else {
+    buf.fill(0)
+  }
+  return buf
+}
+
+SafeBuffer.allocUnsafe = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return Buffer(size)
+}
+
+SafeBuffer.allocUnsafeSlow = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return buffer.SlowBuffer(size)
+}
+
+
+/***/ }),
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
+/* 86 */,
+/* 87 */,
+/* 88 */,
+/* 89 */,
+/* 90 */,
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */,
+/* 103 */,
+/* 104 */,
+/* 105 */,
+/* 106 */,
+/* 107 */,
+/* 108 */,
+/* 109 */,
+/* 110 */,
+/* 111 */,
+/* 112 */,
+/* 113 */,
+/* 114 */,
+/* 115 */,
+/* 116 */,
+/* 117 */,
+/* 118 */,
+/* 119 */,
+/* 120 */,
+/* 121 */,
+/* 122 */,
+/* 123 */,
+/* 124 */,
+/* 125 */,
+/* 126 */,
+/* 127 */,
+/* 128 */,
+/* 129 */,
+/* 130 */,
+/* 131 */,
+/* 132 */,
+/* 133 */,
+/* 134 */,
+/* 135 */,
+/* 136 */,
+/* 137 */,
+/* 138 */,
+/* 139 */,
+/* 140 */,
+/* 141 */,
+/* 142 */,
+/* 143 */,
+/* 144 */,
+/* 145 */,
+/* 146 */,
+/* 147 */,
+/* 148 */,
+/* 149 */,
+/* 150 */,
+/* 151 */,
+/* 152 */,
+/* 153 */,
+/* 154 */,
+/* 155 */,
+/* 156 */,
+/* 157 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+const Ref = __webpack_require__(8);
 
 module.exports = class Set {
 
@@ -3825,8 +3334,7 @@ module.exports = class Set {
 
 
 /***/ }),
-
-/***/ 212:
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3834,10 +3342,10 @@ module.exports = class Set {
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-const Any = __webpack_require__(206);
-const Cast = __webpack_require__(208);
-const Ref = __webpack_require__(207);
+const Hoek = __webpack_require__(4);
+const Any = __webpack_require__(7);
+const Cast = __webpack_require__(18);
+const Ref = __webpack_require__(8);
 
 
 // Declare internals
@@ -4021,8 +3529,7 @@ module.exports = new internals.Alternatives();
 
 
 /***/ }),
-
-/***/ 213:
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4030,9 +3537,9 @@ module.exports = new internals.Alternatives();
 
 // Load modules
 
-const Any = __webpack_require__(206);
-const Ref = __webpack_require__(207);
-const Hoek = __webpack_require__(203);
+const Any = __webpack_require__(7);
+const Ref = __webpack_require__(8);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -4204,8 +3711,7 @@ module.exports = new internals.Date();
 
 
 /***/ }),
-
-/***/ 214:
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4213,11 +3719,11 @@ module.exports = new internals.Date();
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-const Topo = __webpack_require__(223);
-const Any = __webpack_require__(206);
-const Errors = __webpack_require__(209);
-const Cast = __webpack_require__(208);
+const Hoek = __webpack_require__(4);
+const Topo = __webpack_require__(237);
+const Any = __webpack_require__(7);
+const Errors = __webpack_require__(38);
+const Cast = __webpack_require__(18);
 
 
 // Declare internals
@@ -5110,8 +4616,7 @@ module.exports = new internals.Object();
 
 
 /***/ }),
-
-/***/ 215:
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5327,8 +4832,1198 @@ module.exports = internals.rfc3986;
 
 
 /***/ }),
+/* 162 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/***/ 216:
+"use strict";
+
+
+// Load modules
+
+const Hoek = __webpack_require__(4);
+
+
+// Declare internals
+
+const internals = {
+    codes: new Map([
+        [100, 'Continue'],
+        [101, 'Switching Protocols'],
+        [102, 'Processing'],
+        [200, 'OK'],
+        [201, 'Created'],
+        [202, 'Accepted'],
+        [203, 'Non-Authoritative Information'],
+        [204, 'No Content'],
+        [205, 'Reset Content'],
+        [206, 'Partial Content'],
+        [207, 'Multi-Status'],
+        [300, 'Multiple Choices'],
+        [301, 'Moved Permanently'],
+        [302, 'Moved Temporarily'],
+        [303, 'See Other'],
+        [304, 'Not Modified'],
+        [305, 'Use Proxy'],
+        [307, 'Temporary Redirect'],
+        [400, 'Bad Request'],
+        [401, 'Unauthorized'],
+        [402, 'Payment Required'],
+        [403, 'Forbidden'],
+        [404, 'Not Found'],
+        [405, 'Method Not Allowed'],
+        [406, 'Not Acceptable'],
+        [407, 'Proxy Authentication Required'],
+        [408, 'Request Time-out'],
+        [409, 'Conflict'],
+        [410, 'Gone'],
+        [411, 'Length Required'],
+        [412, 'Precondition Failed'],
+        [413, 'Request Entity Too Large'],
+        [414, 'Request-URI Too Large'],
+        [415, 'Unsupported Media Type'],
+        [416, 'Requested Range Not Satisfiable'],
+        [417, 'Expectation Failed'],
+        [418, 'I\'m a teapot'],
+        [422, 'Unprocessable Entity'],
+        [423, 'Locked'],
+        [424, 'Failed Dependency'],
+        [425, 'Unordered Collection'],
+        [426, 'Upgrade Required'],
+        [428, 'Precondition Required'],
+        [429, 'Too Many Requests'],
+        [431, 'Request Header Fields Too Large'],
+        [451, 'Unavailable For Legal Reasons'],
+        [500, 'Internal Server Error'],
+        [501, 'Not Implemented'],
+        [502, 'Bad Gateway'],
+        [503, 'Service Unavailable'],
+        [504, 'Gateway Time-out'],
+        [505, 'HTTP Version Not Supported'],
+        [506, 'Variant Also Negotiates'],
+        [507, 'Insufficient Storage'],
+        [509, 'Bandwidth Limit Exceeded'],
+        [510, 'Not Extended'],
+        [511, 'Network Authentication Required']
+    ])
+};
+
+
+module.exports = internals.Boom = class extends Error {
+
+    static [Symbol.hasInstance](instance) {
+
+        return internals.Boom.isBoom(instance);
+    }
+
+    constructor(message, options = {}) {
+
+        if (message instanceof Error) {
+            return internals.Boom.boomify(Hoek.clone(message), options);
+        }
+
+        const { statusCode = 500, data = null, ctor = internals.Boom } = options;
+        const error = new Error(message ? message : undefined);         // Avoids settings null message
+        Error.captureStackTrace(error, ctor);                           // Filter the stack to our external API
+        error.data = data;
+        internals.initialize(error, statusCode);
+        error.typeof = ctor;
+
+        if (options.decorate) {
+            Object.assign(error, options.decorate);
+        }
+
+        return error;
+    }
+
+    static isBoom(err) {
+
+        return (err instanceof Error && !!err.isBoom);
+    }
+
+    static boomify(err, options) {
+
+        Hoek.assert(err instanceof Error, 'Cannot wrap non-Error object');
+
+        options = options || {};
+
+        if (options.data !== undefined) {
+            err.data = options.data;
+        }
+
+        if (options.decorate) {
+            Object.assign(err, options.decorate);
+        }
+
+        if (!err.isBoom) {
+            return internals.initialize(err, options.statusCode || 500, options.message);
+        }
+
+        if (options.override === false ||                           // Defaults to true
+            (!options.statusCode && !options.message)) {
+
+            return err;
+        }
+
+        return internals.initialize(err, options.statusCode || err.output.statusCode, options.message);
+    }
+
+    // 4xx Client Errors
+
+    static badRequest(message, data) {
+
+        return new internals.Boom(message, { statusCode: 400, data, ctor: internals.Boom.badRequest });
+    }
+
+    static unauthorized(message, scheme, attributes) {          // Or function (message, wwwAuthenticate[])
+
+        const err = new internals.Boom(message, { statusCode: 401, ctor: internals.Boom.unauthorized });
+
+        if (!scheme) {
+            return err;
+        }
+
+        let wwwAuthenticate = '';
+
+        if (typeof scheme === 'string') {
+
+            // function (message, scheme, attributes)
+
+            wwwAuthenticate = scheme;
+
+            if (attributes || message) {
+                err.output.payload.attributes = {};
+            }
+
+            if (attributes) {
+                if (typeof attributes === 'string') {
+                    wwwAuthenticate = wwwAuthenticate + ' ' + Hoek.escapeHeaderAttribute(attributes);
+                    err.output.payload.attributes = attributes;
+                }
+                else {
+                    const names = Object.keys(attributes);
+                    for (let i = 0; i < names.length; ++i) {
+                        const name = names[i];
+                        if (i) {
+                            wwwAuthenticate = wwwAuthenticate + ',';
+                        }
+
+                        let value = attributes[name];
+                        if (value === null ||
+                            value === undefined) {              // Value can be zero
+
+                            value = '';
+                        }
+                        wwwAuthenticate = wwwAuthenticate + ' ' + name + '="' + Hoek.escapeHeaderAttribute(value.toString()) + '"';
+                        err.output.payload.attributes[name] = value;
+                    }
+                }
+            }
+
+
+            if (message) {
+                if (attributes) {
+                    wwwAuthenticate = wwwAuthenticate + ',';
+                }
+                wwwAuthenticate = wwwAuthenticate + ' error="' + Hoek.escapeHeaderAttribute(message) + '"';
+                err.output.payload.attributes.error = message;
+            }
+            else {
+                err.isMissing = true;
+            }
+        }
+        else {
+
+            // function (message, wwwAuthenticate[])
+
+            const wwwArray = scheme;
+            for (let i = 0; i < wwwArray.length; ++i) {
+                if (i) {
+                    wwwAuthenticate = wwwAuthenticate + ', ';
+                }
+
+                wwwAuthenticate = wwwAuthenticate + wwwArray[i];
+            }
+        }
+
+        err.output.headers['WWW-Authenticate'] = wwwAuthenticate;
+
+        return err;
+    }
+
+    static paymentRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 402, data, ctor: internals.Boom.paymentRequired });
+    }
+
+    static forbidden(message, data) {
+
+        return new internals.Boom(message, { statusCode: 403, data, ctor: internals.Boom.forbidden });
+    }
+
+    static notFound(message, data) {
+
+        return new internals.Boom(message, { statusCode: 404, data, ctor: internals.Boom.notFound });
+    }
+
+    static methodNotAllowed(message, data, allow) {
+
+        const err = new internals.Boom(message, { statusCode: 405, data, ctor: internals.Boom.methodNotAllowed });
+
+        if (typeof allow === 'string') {
+            allow = [allow];
+        }
+
+        if (Array.isArray(allow)) {
+            err.output.headers.Allow = allow.join(', ');
+        }
+
+        return err;
+    }
+
+    static notAcceptable(message, data) {
+
+        return new internals.Boom(message, { statusCode: 406, data, ctor: internals.Boom.notAcceptable });
+    }
+
+    static proxyAuthRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 407, data, ctor: internals.Boom.proxyAuthRequired });
+    }
+
+    static clientTimeout(message, data) {
+
+        return new internals.Boom(message, { statusCode: 408, data, ctor: internals.Boom.clientTimeout });
+    }
+
+    static conflict(message, data) {
+
+        return new internals.Boom(message, { statusCode: 409, data, ctor: internals.Boom.conflict });
+    }
+
+    static resourceGone(message, data) {
+
+        return new internals.Boom(message, { statusCode: 410, data, ctor: internals.Boom.resourceGone });
+    }
+
+    static lengthRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 411, data, ctor: internals.Boom.lengthRequired });
+    }
+
+    static preconditionFailed(message, data) {
+
+        return new internals.Boom(message, { statusCode: 412, data, ctor: internals.Boom.preconditionFailed });
+    }
+
+    static entityTooLarge(message, data) {
+
+        return new internals.Boom(message, { statusCode: 413, data, ctor: internals.Boom.entityTooLarge });
+    }
+
+    static uriTooLong(message, data) {
+
+        return new internals.Boom(message, { statusCode: 414, data, ctor: internals.Boom.uriTooLong });
+    }
+
+    static unsupportedMediaType(message, data) {
+
+        return new internals.Boom(message, { statusCode: 415, data, ctor: internals.Boom.unsupportedMediaType });
+    }
+
+    static rangeNotSatisfiable(message, data) {
+
+        return new internals.Boom(message, { statusCode: 416, data, ctor: internals.Boom.rangeNotSatisfiable });
+    }
+
+    static expectationFailed(message, data) {
+
+        return new internals.Boom(message, { statusCode: 417, data, ctor: internals.Boom.expectationFailed });
+    }
+
+    static teapot(message, data) {
+
+        return new internals.Boom(message, { statusCode: 418, data, ctor: internals.Boom.teapot });
+    }
+
+    static badData(message, data) {
+
+        return new internals.Boom(message, { statusCode: 422, data, ctor: internals.Boom.badData });
+    }
+
+    static locked(message, data) {
+
+        return new internals.Boom(message, { statusCode: 423, data, ctor: internals.Boom.locked });
+    }
+
+    static preconditionRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 428, data, ctor: internals.Boom.preconditionRequired });
+    }
+
+    static tooManyRequests(message, data) {
+
+        return new internals.Boom(message, { statusCode: 429, data, ctor: internals.Boom.tooManyRequests });
+    }
+
+    static illegal(message, data) {
+
+        return new internals.Boom(message, { statusCode: 451, data, ctor: internals.Boom.illegal });
+    }
+
+    // 5xx Server Errors
+
+    static internal(message, data, statusCode = 500) {
+
+        return internals.serverError(message, data, statusCode, internals.Boom.internal);
+    }
+
+    static notImplemented(message, data) {
+
+        return internals.serverError(message, data, 501, internals.Boom.notImplemented);
+    }
+
+    static badGateway(message, data) {
+
+        return internals.serverError(message, data, 502, internals.Boom.badGateway);
+    }
+
+    static serverUnavailable(message, data) {
+
+        return internals.serverError(message, data, 503, internals.Boom.serverUnavailable);
+    }
+
+    static gatewayTimeout(message, data) {
+
+        return internals.serverError(message, data, 504, internals.Boom.gatewayTimeout);
+    }
+
+    static badImplementation(message, data) {
+
+        const err = internals.serverError(message, data, 500, internals.Boom.badImplementation);
+        err.isDeveloperError = true;
+        return err;
+    }
+};
+
+
+
+internals.initialize = function (err, statusCode, message) {
+
+    const numberCode = parseInt(statusCode, 10);
+    Hoek.assert(!isNaN(numberCode) && numberCode >= 400, 'First argument must be a number (400+):', statusCode);
+
+    err.isBoom = true;
+    err.isServer = numberCode >= 500;
+
+    if (!err.hasOwnProperty('data')) {
+        err.data = null;
+    }
+
+    err.output = {
+        statusCode: numberCode,
+        payload: {},
+        headers: {}
+    };
+
+    err.reformat = internals.reformat;
+
+    if (!message &&
+        !err.message) {
+
+        err.reformat();
+        message = err.output.payload.error;
+    }
+
+    if (message) {
+        err.message = (message + (err.message ? ': ' + err.message : ''));
+        err.output.payload.message = err.message;
+    }
+
+    err.reformat();
+    return err;
+};
+
+
+internals.reformat = function () {
+
+    this.output.payload.statusCode = this.output.statusCode;
+    this.output.payload.error = internals.codes.get(this.output.statusCode) || 'Unknown';
+
+    if (this.output.statusCode === 500) {
+        this.output.payload.message = 'An internal server error occurred';              // Hide actual error from user
+    }
+    else if (this.message) {
+        this.output.payload.message = this.message;
+    }
+};
+
+
+internals.serverError = function (message, data, statusCode, ctor) {
+
+    if (data instanceof Error &&
+        !data.isBoom) {
+
+        return internals.Boom.boomify(data, { statusCode, message });
+    }
+
+    return new internals.Boom(message, { statusCode, data, ctor });
+};
+
+
+/***/ }),
+/* 163 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var jws = __webpack_require__(40);
+
+module.exports = function (jwt, options) {
+  options = options || {};
+  var decoded = jws.decode(jwt, options);
+  if (!decoded) { return null; }
+  var payload = decoded.payload;
+
+  //try parse the payload
+  if(typeof payload === 'string') {
+    try {
+      var obj = JSON.parse(payload);
+      if(typeof obj === 'object') {
+        payload = obj;
+      }
+    } catch (e) { }
+  }
+
+  //return header if `complete` option is enabled.  header includes claims
+  //such as `kid` and `alg` used to select the key within a JWKS needed to
+  //verify the signature
+  if (options.complete === true) {
+    return {
+      header: decoded.header,
+      payload: payload,
+      signature: decoded.signature
+    };
+  }
+  return payload;
+};
+
+
+/***/ }),
+/* 164 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*global module, process*/
+var Buffer = __webpack_require__(41).Buffer;
+var Stream = __webpack_require__(3);
+var util = __webpack_require__(5);
+
+function DataStream(data) {
+  this.buffer = null;
+  this.writable = true;
+  this.readable = true;
+
+  // No input
+  if (!data) {
+    this.buffer = Buffer.alloc(0);
+    return this;
+  }
+
+  // Stream
+  if (typeof data.pipe === 'function') {
+    this.buffer = Buffer.alloc(0);
+    data.pipe(this);
+    return this;
+  }
+
+  // Buffer or String
+  // or Object (assumedly a passworded key)
+  if (data.length || typeof data === 'object') {
+    this.buffer = data;
+    this.writable = false;
+    process.nextTick(function () {
+      this.emit('end', data);
+      this.readable = false;
+      this.emit('close');
+    }.bind(this));
+    return this;
+  }
+
+  throw new TypeError('Unexpected data type ('+ typeof data + ')');
+}
+util.inherits(DataStream, Stream);
+
+DataStream.prototype.write = function write(data) {
+  this.buffer = Buffer.concat([this.buffer, Buffer.from(data)]);
+  this.emit('data', data);
+};
+
+DataStream.prototype.end = function end(data) {
+  if (data)
+    this.write(data);
+  this.emit('end', data);
+  this.emit('close');
+  this.writable = false;
+  this.readable = false;
+};
+
+module.exports = DataStream;
+
+
+/***/ }),
+/* 165 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var bufferEqual = __webpack_require__(255);
+var base64url = __webpack_require__(23);
+var Buffer = __webpack_require__(41).Buffer;
+var crypto = __webpack_require__(12);
+var formatEcdsa = __webpack_require__(256);
+var util = __webpack_require__(5);
+
+var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512" and "none".'
+var MSG_INVALID_SECRET = 'secret must be a string or buffer';
+var MSG_INVALID_VERIFIER_KEY = 'key must be a string or a buffer';
+var MSG_INVALID_SIGNER_KEY = 'key must be a string, a buffer or an object';
+
+function typeError(template) {
+  var args = [].slice.call(arguments, 1);
+  var errMsg = util.format.bind(util, template).apply(null, args);
+  return new TypeError(errMsg);
+}
+
+function bufferOrString(obj) {
+  return Buffer.isBuffer(obj) || typeof obj === 'string';
+}
+
+function normalizeInput(thing) {
+  if (!bufferOrString(thing))
+    thing = JSON.stringify(thing);
+  return thing;
+}
+
+function createHmacSigner(bits) {
+  return function sign(thing, secret) {
+    if (!bufferOrString(secret))
+      throw typeError(MSG_INVALID_SECRET);
+    thing = normalizeInput(thing);
+    var hmac = crypto.createHmac('sha' + bits, secret);
+    var sig = (hmac.update(thing), hmac.digest('base64'))
+    return base64url.fromBase64(sig);
+  }
+}
+
+function createHmacVerifier(bits) {
+  return function verify(thing, signature, secret) {
+    var computedSig = createHmacSigner(bits)(thing, secret);
+    return bufferEqual(Buffer.from(signature), Buffer.from(computedSig));
+  }
+}
+
+function createKeySigner(bits) {
+ return function sign(thing, privateKey) {
+    if (!bufferOrString(privateKey) && !(typeof privateKey === 'object'))
+      throw typeError(MSG_INVALID_SIGNER_KEY);
+    thing = normalizeInput(thing);
+    // Even though we are specifying "RSA" here, this works with ECDSA
+    // keys as well.
+    var signer = crypto.createSign('RSA-SHA' + bits);
+    var sig = (signer.update(thing), signer.sign(privateKey, 'base64'));
+    return base64url.fromBase64(sig);
+  }
+}
+
+function createKeyVerifier(bits) {
+  return function verify(thing, signature, publicKey) {
+    if (!bufferOrString(publicKey))
+      throw typeError(MSG_INVALID_VERIFIER_KEY);
+    thing = normalizeInput(thing);
+    signature = base64url.toBase64(signature);
+    var verifier = crypto.createVerify('RSA-SHA' + bits);
+    verifier.update(thing);
+    return verifier.verify(publicKey, signature, 'base64');
+  }
+}
+
+function createECDSASigner(bits) {
+  var inner = createKeySigner(bits);
+  return function sign() {
+    var signature = inner.apply(null, arguments);
+    signature = formatEcdsa.derToJose(signature, 'ES' + bits);
+    return signature;
+  };
+}
+
+function createECDSAVerifer(bits) {
+  var inner = createKeyVerifier(bits);
+  return function verify(thing, signature, publicKey) {
+    signature = formatEcdsa.joseToDer(signature, 'ES' + bits).toString('base64');
+    var result = inner(thing, signature, publicKey);
+    return result;
+  };
+}
+
+function createNoneSigner() {
+  return function sign() {
+    return '';
+  }
+}
+
+function createNoneVerifier() {
+  return function verify(thing, signature) {
+    return signature === '';
+  }
+}
+
+module.exports = function jwa(algorithm) {
+  var signerFactories = {
+    hs: createHmacSigner,
+    rs: createKeySigner,
+    es: createECDSASigner,
+    none: createNoneSigner,
+  }
+  var verifierFactories = {
+    hs: createHmacVerifier,
+    rs: createKeyVerifier,
+    es: createECDSAVerifer,
+    none: createNoneVerifier,
+  }
+  var match = algorithm.match(/^(RS|ES|HS)(256|384|512)$|^(none)$/i);
+  if (!match)
+    throw typeError(MSG_INVALID_ALGORITHM, algorithm);
+  var algo = (match[1] || match[3]).toLowerCase();
+  var bits = match[2];
+
+  return {
+    sign: signerFactories[algo](bits),
+    verify: verifierFactories[algo](bits),
+  }
+};
+
+
+/***/ }),
+/* 166 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*global module*/
+var Buffer = __webpack_require__(24).Buffer;
+
+module.exports = function toString(obj) {
+  if (typeof obj === 'string')
+    return obj;
+  if (typeof obj === 'number' || Buffer.isBuffer(obj))
+    return obj.toString();
+  return JSON.stringify(obj);
+};
+
+
+/***/ }),
+/* 167 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var JsonWebTokenError = __webpack_require__(25);
+
+var NotBeforeError = function (message, date) {
+  JsonWebTokenError.call(this, message);
+  this.name = 'NotBeforeError';
+  this.date = date;
+};
+
+NotBeforeError.prototype = Object.create(JsonWebTokenError.prototype);
+
+NotBeforeError.prototype.constructor = NotBeforeError;
+
+module.exports = NotBeforeError;
+
+/***/ }),
+/* 168 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var JsonWebTokenError = __webpack_require__(25);
+
+var TokenExpiredError = function (message, expiredAt) {
+  JsonWebTokenError.call(this, message);
+  this.name = 'TokenExpiredError';
+  this.expiredAt = expiredAt;
+};
+
+TokenExpiredError.prototype = Object.create(JsonWebTokenError.prototype);
+
+TokenExpiredError.prototype.constructor = TokenExpiredError;
+
+module.exports = TokenExpiredError;
+
+/***/ }),
+/* 169 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var ms = __webpack_require__(260);
+
+module.exports = function (time, iat) {
+  var timestamp = iat || Math.floor(Date.now() / 1000);
+
+  if (typeof time === 'string') {
+    var milliseconds = ms(time);
+    if (typeof milliseconds === 'undefined') {
+      return;
+    }
+    return Math.floor(timestamp + milliseconds / 1000);
+  } else if (typeof time === 'number') {
+    return timestamp + time;
+  } else {
+    return;
+  }
+
+};
+
+/***/ }),
+/* 170 */
+/***/ (function(module, exports) {
+
+module.exports = extend
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+    var target = {}
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
+
+
+/***/ }),
+/* 171 */,
+/* 172 */,
+/* 173 */,
+/* 174 */,
+/* 175 */,
+/* 176 */,
+/* 177 */,
+/* 178 */,
+/* 179 */,
+/* 180 */,
+/* 181 */,
+/* 182 */,
+/* 183 */,
+/* 184 */,
+/* 185 */,
+/* 186 */,
+/* 187 */,
+/* 188 */,
+/* 189 */,
+/* 190 */,
+/* 191 */,
+/* 192 */,
+/* 193 */,
+/* 194 */,
+/* 195 */,
+/* 196 */,
+/* 197 */,
+/* 198 */,
+/* 199 */,
+/* 200 */,
+/* 201 */,
+/* 202 */,
+/* 203 */,
+/* 204 */,
+/* 205 */,
+/* 206 */,
+/* 207 */,
+/* 208 */,
+/* 209 */,
+/* 210 */,
+/* 211 */,
+/* 212 */,
+/* 213 */,
+/* 214 */,
+/* 215 */,
+/* 216 */,
+/* 217 */,
+/* 218 */,
+/* 219 */,
+/* 220 */,
+/* 221 */,
+/* 222 */,
+/* 223 */,
+/* 224 */,
+/* 225 */,
+/* 226 */,
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _joi = __webpack_require__(37);
+
+var route = __webpack_require__(245)({});
+//'use strict'
+//const AWS = require('aws-sdk');
+//var MongoClient = require('mongodb').MongoClient;
+var people = __webpack_require__(247);
+var listings = __webpack_require__(269);
+var mongo_uri;
+var cachedDb = null;
+var Boom = __webpack_require__(162);
+var Joi = __webpack_require__(37);
+var validateJWT = __webpack_require__(270);
+var tokenValidationJoi = __webpack_require__(271);
+var rootPath = '/sis';
+var DEBUG_SIS = true;
+exports.handler = function (event, context, callback) {
+    //console.log("",{event, context})
+    //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
+    context.callbackWaitsForEmptyEventLoop = false;
+    /*var uri = process.env.MONGO_URI;
+    if (mongo_uri === null) {
+        mongo_uri = uri
+    }*/
+    processEvent(event, context, callback);
+};
+var lamdaResponse = __webpack_require__(39);
+
+var routes = {
+    "GET": [{
+        path: "/people/:id",
+        handler: people.getById,
+        validator: {
+            params: {
+                id: Joi.string().hex().min(8).required()
+            }
+        }
+    }, {
+        path: "/people/:id",
+        handler: people.getByIdPublic,
+        validator: {
+            params: {
+                id: Joi.number().min(8).required()
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+        }
+    }, {
+        path: "/listings/:id",
+        handler: listings.getById
+    }],
+    "PUT": [{
+        path: "/people/:id",
+        handler: people.update
+    }, {
+        path: "/listings/:id",
+        handler: listings.update
+    }],
+    "POST": [{
+        path: "/people",
+        handler: people.add
+    }, {
+        path: "/listings",
+        handler: listings.add
+    }]
+};
+function processEvent(event, context, callback) {
+    event.path = event.path.split(rootPath)[1];
+    if (event.path.substr(-1) === "/") {
+        event.path = event.path.substr(0, event.path.length - 1);
+    }
+    if (routes[event.httpMethod]) {
+        var handler;
+        var validator;
+        var params;
+        var valid;
+        for (var a in routes[event.httpMethod]) {
+            /*if(routes[event.httpMethod][a].path === event.path){
+                if(routes[event.httpMethod][a].handler && typeof routes[event.httpMethod][a].handler === 'function'){
+                    handler = routes[event.httpMethod][a].handler
+                }
+                if(routes[event.httpMethod][a].validator && typeof routes[event.httpMethod][a].validator === 'object'){
+                    validator = routes[event.httpMethod][a].validator
+                }
+                
+                break
+            }*/
+            //console.log('route')
+            var match = route(routes[event.httpMethod][a].path);
+            //console.log('match')
+            params = match(event.path);
+            //console.log('params',event.path)
+            //console.log('routes[event.httpMethod][a].path',routes[event.httpMethod][a].path)
+            if (params !== false) {
+                handler = routes[event.httpMethod][a].handler;
+                event.params = params;
+                if (typeof event.body === 'string') {
+                    event.body = JSON.parse(event.body);
+                }
+
+                validator = routes[event.httpMethod][a].validator;
+                valid = Joi.validate(event, validator, { allowUnknown: true });
+                console.log('params-', valid);
+                if (!valid.error) {
+                    break;
+                }
+            } else {
+                //console.log('notmatched >',routes[event.httpMethod][a].path)
+            }
+        }
+        if (valid.error) {
+            if (DEBUG_SIS) {
+                callback(null, lamdaResponse(valid));
+            } else {
+                callback(null, lamdaResponse(Boom.badRequest("Validation Error")));
+            }
+        } else {
+            if (handler) {
+                handler(valid.value, context, callback);
+            } else {
+                callback(null, lamdaResponse(Boom.notFound()));
+            }
+        }
+    } else {
+        callback(null, lamdaResponse(Boom.notFound()));
+    }
+    //console.log('Calling MongoDB Atlas from AWS Lambda with event: ' + JSON.stringify(event));
+
+
+    /*var jsonContents = JSON.parse(JSON.stringify(event));
+     
+     //date conversion for grades array
+    if (jsonContents.grades != null) {
+        for (var i = 0, len = jsonContents.grades.length; i < len; i++) {
+            //use the following line if you want to preserve the original dates
+            //jsonContents.grades[i].date = new Date(jsonContents.grades[i].date);
+             //the following line assigns the current date so we can more easily differentiate between similar records
+            jsonContents.grades[i].date = new Date();
+        }
+    }
+     try {
+        //testing if the database connection exists and is connected to Atlas so we can try to re-use it
+        if (cachedDb && cachedDb.serverConfig.isConnected()) {
+            createDoc(cachedDb, jsonContents, callback);
+        }
+        else {
+            //some performance penalty might be incurred when running that database connection initialization code
+            console.log(`=> connecting to database ${atlas_connection_uri}`);
+            MongoClient.connect(atlas_connection_uri, function (err, db) {
+                if (err) {
+                    console.log(`the error is ${err}.`, err)
+                    process.exit(1)
+                }
+                cachedDb = db;
+                return createDoc(db, jsonContents, callback);
+            });            
+        }
+    }
+    catch (err) {
+        console.error('an error occurred', err);
+    }*/
+}
+
+function createDoc(db, json, callback) {
+    db.collection('restaurants').insertOne(json, function (err, result) {
+        if (err != null) {
+            console.error("an error occurred in createDoc", err);
+            callback(null, JSON.stringify(err));
+        } else {
+            var message = 'Kudos! You just created an entry into the restaurants collection with id: ' + result.insertedId;
+            //console.log(message);
+            callback(null, message);
+        }
+        //we don't want to close the connection since we set context.callbackWaitsForEmptyEventLoop to false (see above)
+        //this will let our function re-use the connection on the next called (if it can re-use the same Lambda container)
+        //db.close();
+    });
+};
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports) {
+
+module.exports = require("assert");
+
+/***/ }),
+/* 229 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// Declare internals
+
+const internals = {};
+
+
+exports.escapeJavaScript = function (input) {
+
+    if (!input) {
+        return '';
+    }
+
+    let escaped = '';
+
+    for (let i = 0; i < input.length; ++i) {
+
+        const charCode = input.charCodeAt(i);
+
+        if (internals.isSafe(charCode)) {
+            escaped += input[i];
+        }
+        else {
+            escaped += internals.escapeJavaScriptChar(charCode);
+        }
+    }
+
+    return escaped;
+};
+
+
+exports.escapeHtml = function (input) {
+
+    if (!input) {
+        return '';
+    }
+
+    let escaped = '';
+
+    for (let i = 0; i < input.length; ++i) {
+
+        const charCode = input.charCodeAt(i);
+
+        if (internals.isSafe(charCode)) {
+            escaped += input[i];
+        }
+        else {
+            escaped += internals.escapeHtmlChar(charCode);
+        }
+    }
+
+    return escaped;
+};
+
+
+exports.escapeJson = function (input) {
+
+    if (!input) {
+        return '';
+    }
+
+    const lessThan = 0x3C;
+    const greaterThan = 0x3E;
+    const andSymbol = 0x26;
+    const lineSeperator = 0x2028;
+
+    // replace method
+    let charCode;
+    return input.replace(/[<>&\u2028\u2029]/g, (match) => {
+
+        charCode = match.charCodeAt(0);
+
+        if (charCode === lessThan) {
+            return '\\u003c';
+        }
+        else if (charCode === greaterThan) {
+            return '\\u003e';
+        }
+        else if (charCode === andSymbol) {
+            return '\\u0026';
+        }
+        else if (charCode === lineSeperator) {
+            return '\\u2028';
+        }
+        return '\\u2029';
+    });
+};
+
+
+internals.escapeJavaScriptChar = function (charCode) {
+
+    if (charCode >= 256) {
+        return '\\u' + internals.padLeft('' + charCode, 4);
+    }
+
+    const hexValue = Buffer.from(String.fromCharCode(charCode), 'ascii').toString('hex');
+    return '\\x' + internals.padLeft(hexValue, 2);
+};
+
+
+internals.escapeHtmlChar = function (charCode) {
+
+    const namedEscape = internals.namedHtml[charCode];
+    if (typeof namedEscape !== 'undefined') {
+        return namedEscape;
+    }
+
+    if (charCode >= 256) {
+        return '&#' + charCode + ';';
+    }
+
+    const hexValue = Buffer.from(String.fromCharCode(charCode), 'ascii').toString('hex');
+    return '&#x' + internals.padLeft(hexValue, 2) + ';';
+};
+
+
+internals.padLeft = function (str, len) {
+
+    while (str.length < len) {
+        str = '0' + str;
+    }
+
+    return str;
+};
+
+
+internals.isSafe = function (charCode) {
+
+    return (typeof internals.safeCharCodes[charCode] !== 'undefined');
+};
+
+
+internals.namedHtml = {
+    '38': '&amp;',
+    '60': '&lt;',
+    '62': '&gt;',
+    '34': '&quot;',
+    '160': '&nbsp;',
+    '162': '&cent;',
+    '163': '&pound;',
+    '164': '&curren;',
+    '169': '&copy;',
+    '174': '&reg;'
+};
+
+
+internals.safeCharCodes = (function () {
+
+    const safe = {};
+
+    for (let i = 32; i < 123; ++i) {
+
+        if ((i >= 97) ||                    // a-z
+            (i >= 65 && i <= 90) ||         // A-Z
+            (i >= 48 && i <= 57) ||         // 0-9
+            i === 32 ||                     // space
+            i === 46 ||                     // .
+            i === 44 ||                     // ,
+            i === 45 ||                     // -
+            i === 58 ||                     // :
+            i === 95) {                     // _
+
+            safe[i] = null;
+        }
+    }
+
+    return safe;
+}());
+
+
+/***/ }),
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5491,8 +6186,7 @@ exports.errors = {
 
 
 /***/ }),
-
-/***/ 217:
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5500,7 +6194,7 @@ exports.errors = {
 
 // Load modules
 
-const Joi = __webpack_require__(210);
+const Joi = __webpack_require__(37);
 
 
 // Declare internals
@@ -5524,8 +6218,7 @@ exports.options = Joi.object({
 
 
 /***/ }),
-
-/***/ 218:
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5533,8 +6226,8 @@ exports.options = Joi.object({
 
 // Load modules
 
-const Any = __webpack_require__(206);
-const Hoek = __webpack_require__(203);
+const Any = __webpack_require__(7);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -5585,8 +6278,7 @@ module.exports = new internals.Lazy();
 
 
 /***/ }),
-
-/***/ 219:
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5594,10 +6286,10 @@ module.exports = new internals.Lazy();
 
 // Load modules
 
-const Any = __webpack_require__(206);
-const Cast = __webpack_require__(208);
-const Ref = __webpack_require__(207);
-const Hoek = __webpack_require__(203);
+const Any = __webpack_require__(7);
+const Cast = __webpack_require__(18);
+const Ref = __webpack_require__(8);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -6255,8 +6947,7 @@ module.exports = new internals.Array();
 
 
 /***/ }),
-
-/***/ 220:
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6264,14 +6955,14 @@ module.exports = new internals.Array();
 
 // Load modules
 
-const Any = __webpack_require__(206);
-const Hoek = __webpack_require__(203);
+const Any = __webpack_require__(7);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
 
 const internals = {
-    Set: __webpack_require__(211)
+    Set: __webpack_require__(157)
 };
 
 
@@ -6361,8 +7052,7 @@ module.exports = new internals.Boolean();
 
 
 /***/ }),
-
-/***/ 221:
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6370,8 +7060,8 @@ module.exports = new internals.Boolean();
 
 // Load modules
 
-const Any = __webpack_require__(206);
-const Hoek = __webpack_require__(203);
+const Any = __webpack_require__(7);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -6469,8 +7159,7 @@ module.exports = new internals.Binary();
 
 
 /***/ }),
-
-/***/ 222:
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6478,9 +7167,9 @@ module.exports = new internals.Binary();
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
-const ObjectType = __webpack_require__(214);
-const Ref = __webpack_require__(207);
+const Hoek = __webpack_require__(4);
+const ObjectType = __webpack_require__(160);
+const Ref = __webpack_require__(8);
 
 
 // Declare internals
@@ -6567,8 +7256,7 @@ module.exports = new internals.Func();
 
 
 /***/ }),
-
-/***/ 223:
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6576,7 +7264,7 @@ module.exports = new internals.Func();
 
 // Load modules
 
-const Hoek = __webpack_require__(203);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -6803,8 +7491,7 @@ internals.Topo.prototype._sort = function () {
 
 
 /***/ }),
-
-/***/ 224:
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6812,9 +7499,9 @@ internals.Topo.prototype._sort = function () {
 
 // Load modules
 
-const Any = __webpack_require__(206);
-const Ref = __webpack_require__(207);
-const Hoek = __webpack_require__(203);
+const Any = __webpack_require__(7);
+const Ref = __webpack_require__(8);
+const Hoek = __webpack_require__(4);
 
 
 // Declare internals
@@ -6984,8 +7671,7 @@ module.exports = new internals.Number();
 
 
 /***/ }),
-
-/***/ 225:
+/* 239 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6993,14 +7679,14 @@ module.exports = new internals.Number();
 
 // Load modules
 
-const Net = __webpack_require__(152);
-const Hoek = __webpack_require__(203);
+const Net = __webpack_require__(28);
+const Hoek = __webpack_require__(4);
 let Isemail;                            // Loaded on demand
-const Any = __webpack_require__(206);
-const Ref = __webpack_require__(207);
-const JoiDate = __webpack_require__(213);
-const Uri = __webpack_require__(226);
-const Ip = __webpack_require__(227);
+const Any = __webpack_require__(7);
+const Ref = __webpack_require__(8);
+const JoiDate = __webpack_require__(159);
+const Uri = __webpack_require__(240);
+const Ip = __webpack_require__(241);
 
 // Declare internals
 
@@ -7185,7 +7871,7 @@ internals.String = class extends Any {
 
         return this._test('email', isEmailOptions, function (value, state, options) {
 
-            Isemail = Isemail || __webpack_require__(228);
+            Isemail = Isemail || __webpack_require__(242);
 
             try {
                 const result = Isemail.validate(value, isEmailOptions);
@@ -7620,8 +8306,7 @@ module.exports = new internals.String();
 
 
 /***/ }),
-
-/***/ 226:
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7629,7 +8314,7 @@ module.exports = new internals.String();
 
 // Load Modules
 
-const RFC3986 = __webpack_require__(215);
+const RFC3986 = __webpack_require__(161);
 
 
 // Declare internals
@@ -7674,8 +8359,7 @@ module.exports = internals.Uri;
 
 
 /***/ }),
-
-/***/ 227:
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7683,7 +8367,7 @@ module.exports = internals.Uri;
 
 // Load modules
 
-const RFC3986 = __webpack_require__(215);
+const RFC3986 = __webpack_require__(161);
 
 
 // Declare internals
@@ -7736,8 +8420,7 @@ module.exports = internals.Ip;
 
 
 /***/ }),
-
-/***/ 228:
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7745,7 +8428,7 @@ module.exports = internals.Ip;
 
 // Load modules
 
-const Punycode = __webpack_require__(229);
+const Punycode = __webpack_require__(243);
 
 // Declare internals
 
@@ -9088,41 +9771,38 @@ exports.normalize = internals.normalize = function (email) {
 
 
 /***/ }),
-
-/***/ 229:
+/* 243 */
 /***/ (function(module, exports) {
 
 module.exports = require("punycode");
 
 /***/ }),
-
-/***/ 230:
+/* 244 */
 /***/ (function(module, exports) {
 
 module.exports = {"_args":[[{"raw":"joi","scope":null,"escapedName":"joi","name":"joi","rawSpec":"","spec":"latest","type":"tag"},"/Users/almahmud/Documents/PProject/almahmud.com/src"]],"_from":"joi@latest","_id":"joi@13.1.2","_inCache":true,"_location":"/joi","_nodeVersion":"8.9.4","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/joi-13.1.2.tgz_1517599419155_0.6128392068203539"},"_npmUser":{"name":"marsup","email":"nicolas@morel.io"},"_npmVersion":"5.6.0","_phantomChildren":{},"_requested":{"raw":"joi","scope":null,"escapedName":"joi","name":"joi","rawSpec":"","spec":"latest","type":"tag"},"_requiredBy":["#USER"],"_resolved":"https://registry.npmjs.org/joi/-/joi-13.1.2.tgz","_shasum":"b2db260323cc7f919fafa51e09e2275bd089a97e","_shrinkwrap":null,"_spec":"joi","_where":"/Users/almahmud/Documents/PProject/almahmud.com/src","bugs":{"url":"https://github.com/hapijs/joi/issues"},"dependencies":{"hoek":"5.x.x","isemail":"3.x.x","topo":"3.x.x"},"description":"Object schema validation","devDependencies":{"code":"5.x.x","hapitoc":"1.x.x","lab":"15.x.x"},"directories":{},"dist":{"integrity":"sha512-bZZSQYW5lPXenOfENvgCBPb9+H6E6MeNWcMtikI04fKphj5tvFL9TOb+H2apJzbCrRw/jebjTH8z6IHLpBytGg==","shasum":"b2db260323cc7f919fafa51e09e2275bd089a97e","tarball":"https://registry.npmjs.org/joi/-/joi-13.1.2.tgz"},"engines":{"node":">=8.9.0"},"gitHead":"97fa7646d568245d15c8981282a56d721414f28d","homepage":"https://github.com/hapijs/joi","keywords":["hapi","schema","validation"],"license":"BSD-3-Clause","main":"lib/index.js","maintainers":[{"name":"nlf","email":"quitlahok@gmail.com"},{"name":"hueniverse","email":"eran@hammer.io"},{"name":"marsup","email":"nicolas@morel.io"},{"name":"wyatt","email":"wpreul@gmail.com"}],"name":"joi","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git://github.com/hapijs/joi.git"},"scripts":{"test":"lab -t 100 -a code -L","test-cov-html":"lab -r html -o coverage.html -a code","test-debug":"lab -a code","toc":"hapitoc","version":"npm run toc && git add API.md README.md"},"version":"13.1.2","warnings":[{"code":"ENOTSUP","required":{"node":">=8.9.0"},"pkgid":"joi@13.1.2"},{"code":"ENOTSUP","required":{"node":">=8.9.0"},"pkgid":"joi@13.1.2"}]}
 
 /***/ }),
-
-/***/ 231:
+/* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var pathToRegexp = __webpack_require__(232);
-var Boom = __webpack_require__(202);
+var pathToRegexp = __webpack_require__(246);
+var Boom = __webpack_require__(162);
 
 module.exports = function (options) {
   options = options || {};
 
   return function (path) {
-    console.log('route ->', path);
+    //console.log('route ->',path)
     var keys = [];
     var re = pathToRegexp(path, keys, options);
-    console.log('--', { path: path, keys: keys, options: options });
-    console.log('-', re);
+    //console.log('--',{path, keys, options})
+    //console.log('-',re)
     return function (pathname, params) {
-      console.log('match ->', { pathname: pathname, params: params });
+      //console.log('match ->',{pathname,params})
       //console.log('pathname', pathname, params)
       var m = re.exec(pathname);
       if (!m) return false;
@@ -9152,8 +9832,7 @@ function decodeParam(param) {
 }
 
 /***/ }),
-
-/***/ 232:
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9530,6 +10209,3021 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp( /** @type {string} */path, keys, options);
 }
 
-/***/ })
+/***/ }),
+/* 247 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/******/ })));
+"use strict";
+
+
+var lamdaResponse = __webpack_require__(39);
+var getJWTToken = __webpack_require__(248);
+exports.add = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people create", event: event, context: context }));
+};
+exports.update = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people update", event: event, context: context }));
+};
+exports.getById = function (event, context, callback) {
+    //should be different for public and owner
+    callback(null, lamdaResponse({ msg: "people getById", event: event, context: context }));
+};
+exports.getByIdPublic = function (event, context, callback) {
+    //should be different for public and owner
+    callback(null, lamdaResponse({ msg: "people getByIdPublic", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
+};
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var CONFIG = __webpack_require__(249);
+var fs = __webpack_require__(35);
+var jwt = __webpack_require__(251);
+function getJWTToken(auth, type, obj) {
+  if (auth && CONFIG.JTW_TOKEN[type] === auth.type) {
+    return auth.token;
+  } else {
+    obj.type = CONFIG.JTW_TOKEN[type];
+    //console.log("------->",CONFIG.JTW_TOKEN[type])
+    var token = jwt.sign(obj, CONFIG.PRIVATE_KEY, {
+      algorithm: 'RS256',
+      expiresIn: CONFIG.WEB_TOKEN_EXPIERY[type]
+    });
+  }
+
+  return token;
+}
+module.exports = getJWTToken;
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var pp = __webpack_require__(250);
+var PRIVATE_KEY = '-----BEGIN RSA PRIVATE KEY-----\nMIICXAIBAAKBgGklWf9rF9g2RlcgLxXFc/DnIcPpVWnbYTZdbVX58LjAXihHjC/W\nXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVbo4ypQyWqip5Ue1YHnUkqu6UB\nYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhnwX5zXGPXO4AvPixpAgMBAAEC\ngYBcVO54+sQPm2mdbKesSJ4NeAoQjb/xmzH8mYI/s6INuu90E5ApGecVxwUoS9fS\npYuLWrD23LevZ7mqs9Zh2tdq3z9kQoQ8obSdWpU7WpOGjzCEWrRJbx2pXT5NxZ67\noKbWI3A3DGMlGKwX9V9bVrZM42S8eWA++vZ+R1hLDFslAQJBAMquK3hM0jtNzhrM\nJJZcITMPWIwAzdRk3OhXf1iEb9xj0PwzfA0aN0o2sxGVS0WQJKjnU8EufMoKTRGu\nXfKfJ5ECQQCEzpHMT+iIMqTVBzt54866xrPMIFvxSUsIKv5M1St8eAU+ryIwCz2u\nZIfvAb62RNKYg4gvMkEWwFbRsVCDmztZAkEAkZJ9OF981AlzEj4zvScY1VKdV5kw\nPO/g1qQZnBsrONEchjf4TnTY513YSbXAJYt9OS9FMchQ6tBxQFTLt3pmcQJAV6XM\n6z5BhMGHr2AajJMgOHwy5SDmDRQGBNn7AtIc5QSA0aHbukFw78tBOye3qas6IZWN\nJzjPZCiEI9gV/wVP4QJBALW2f9YgwjnAPSlpHm7XOxux+Ck4OUmLztCsJPB9Iuog\ncVbO7SxVR1z5YtDdxY0UI9BTX+0MXbDWIouH4kET3HI=\n-----END RSA PRIVATE KEY-----';
+var PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----\nMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGklWf9rF9g2RlcgLxXFc/DnIcPp\nVWnbYTZdbVX58LjAXihHjC/WXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVb\no4ypQyWqip5Ue1YHnUkqu6UBYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhn\nwX5zXGPXO4AvPixpAgMBAAE=\n-----END PUBLIC KEY-----';
+var config = {
+  TOKEN_EXPIERY_LENGTH: 1 * 60 * 60 * 1000,
+
+  WEB_TOKEN_EXPIERY: {
+    web: '1h',
+    user: '1h',
+    admin: '1h'
+  },
+  JTW_TOKEN: {
+    web: 0,
+    user: 1,
+    admin: 2
+  },
+  PRIVATE_KEY: PRIVATE_KEY,
+  PUBLIC_KEY: PUBLIC_KEY
+};
+
+for (var a in pp) {
+  config[a] = pp[a];
+}
+for (var b in config) {
+  if (process.env[b]) {
+    config[b] = process.env[b];
+  }
+}
+module.exports = config;
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+  PROVINCES: ['ON', 'QC', 'NS', 'NB', 'MB', 'BC', 'PE', 'SK', 'AB', 'NL', 'NT', 'NU', 'YT'],
+  PROVINCES_EXPANDED: [{ view: 'Ontario', value: 'ON' }, { view: 'Quebec', value: 'QC' }, { view: 'Nova Scotia', value: 'NS' }, { view: 'New Brunswick', value: 'NB' }, { view: 'Manitoba', value: 'MB' }, { view: 'British Columbia', value: 'BC' }, { view: 'Prince Edward Island', value: 'PE' }, { view: 'Saskatchewan', value: 'SK' }, { view: 'Alberta', value: 'AB' }, { view: 'Newfoundland and Labrador', value: 'NL' }, { view: 'Northwest Territories', value: 'NT' }, { view: 'Nunavut', value: 'NU' }, { view: 'Yukon', value: 'YT' }]
+};
+
+/***/ }),
+/* 251 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+  decode: __webpack_require__(163),
+  verify: __webpack_require__(259),
+  sign: __webpack_require__(261),
+  JsonWebTokenError: __webpack_require__(25),
+  NotBeforeError: __webpack_require__(167),
+  TokenExpiredError: __webpack_require__(168),
+};
+
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*global module*/
+var base64url = __webpack_require__(23);
+var DataStream = __webpack_require__(164);
+var jwa = __webpack_require__(165);
+var Stream = __webpack_require__(3);
+var toString = __webpack_require__(166);
+var util = __webpack_require__(5);
+
+function jwsSecuredInput(header, payload, encoding) {
+  encoding = encoding || 'utf8';
+  var encodedHeader = base64url(toString(header), 'binary');
+  var encodedPayload = base64url(toString(payload), encoding);
+  return util.format('%s.%s', encodedHeader, encodedPayload);
+}
+
+function jwsSign(opts) {
+  var header = opts.header;
+  var payload = opts.payload;
+  var secretOrKey = opts.secret || opts.privateKey;
+  var encoding = opts.encoding;
+  var algo = jwa(header.alg);
+  var securedInput = jwsSecuredInput(header, payload, encoding);
+  var signature = algo.sign(securedInput, secretOrKey);
+  return util.format('%s.%s', securedInput, signature);
+}
+
+function SignStream(opts) {
+  var secret = opts.secret||opts.privateKey||opts.key;
+  var secretStream = new DataStream(secret);
+  this.readable = true;
+  this.header = opts.header;
+  this.encoding = opts.encoding;
+  this.secret = this.privateKey = this.key = secretStream;
+  this.payload = new DataStream(opts.payload);
+  this.secret.once('close', function () {
+    if (!this.payload.writable && this.readable)
+      this.sign();
+  }.bind(this));
+
+  this.payload.once('close', function () {
+    if (!this.secret.writable && this.readable)
+      this.sign();
+  }.bind(this));
+}
+util.inherits(SignStream, Stream);
+
+SignStream.prototype.sign = function sign() {
+  try {
+    var signature = jwsSign({
+      header: this.header,
+      payload: this.payload.buffer,
+      secret: this.secret.buffer,
+      encoding: this.encoding
+    });
+    this.emit('done', signature);
+    this.emit('data', signature);
+    this.emit('end');
+    this.readable = false;
+    return signature;
+  } catch (e) {
+    this.readable = false;
+    this.emit('error', e);
+    this.emit('close');
+  }
+};
+
+SignStream.sign = jwsSign;
+
+module.exports = SignStream;
+
+
+/***/ }),
+/* 253 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var pad_string_1 = __webpack_require__(254);
+function encode(input, encoding) {
+    if (encoding === void 0) { encoding = "utf8"; }
+    if (Buffer.isBuffer(input)) {
+        return fromBase64(input.toString("base64"));
+    }
+    return fromBase64(new Buffer(input, encoding).toString("base64"));
+}
+;
+function decode(base64url, encoding) {
+    if (encoding === void 0) { encoding = "utf8"; }
+    return new Buffer(toBase64(base64url), "base64").toString(encoding);
+}
+function toBase64(base64url) {
+    base64url = base64url.toString();
+    return pad_string_1.default(base64url)
+        .replace(/\-/g, "+")
+        .replace(/_/g, "/");
+}
+function fromBase64(base64) {
+    return base64
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
+}
+function toBuffer(base64url) {
+    return new Buffer(toBase64(base64url), "base64");
+}
+var base64url = encode;
+base64url.encode = encode;
+base64url.decode = decode;
+base64url.toBase64 = toBase64;
+base64url.fromBase64 = fromBase64;
+base64url.toBuffer = toBuffer;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = base64url;
+
+
+/***/ }),
+/* 254 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function padString(input) {
+    var segmentLength = 4;
+    var stringLength = input.length;
+    var diff = stringLength % segmentLength;
+    if (!diff) {
+        return input;
+    }
+    var position = stringLength;
+    var padLength = segmentLength - diff;
+    var paddedStringLength = stringLength + padLength;
+    var buffer = new Buffer(paddedStringLength);
+    buffer.write(input);
+    while (padLength--) {
+        buffer.write("=", position++);
+    }
+    return buffer.toString();
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = padString;
+
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jshint node:true */
+
+var Buffer = __webpack_require__(24).Buffer; // browserify
+var SlowBuffer = __webpack_require__(24).SlowBuffer;
+
+module.exports = bufferEq;
+
+function bufferEq(a, b) {
+
+  // shortcutting on type is necessary for correctness
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    return false;
+  }
+
+  // buffer sizes should be well-known information, so despite this
+  // shortcutting, it doesn't leak any information about the *contents* of the
+  // buffers.
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  var c = 0;
+  for (var i = 0; i < a.length; i++) {
+    /*jshint bitwise:false */
+    c |= a[i] ^ b[i]; // XOR
+  }
+  return c === 0;
+}
+
+bufferEq.install = function() {
+  Buffer.prototype.equal = SlowBuffer.prototype.equal = function equal(that) {
+    return bufferEq(this, that);
+  };
+};
+
+var origBufEqual = Buffer.prototype.equal;
+var origSlowBufEqual = SlowBuffer.prototype.equal;
+bufferEq.restore = function() {
+  Buffer.prototype.equal = origBufEqual;
+  SlowBuffer.prototype.equal = origSlowBufEqual;
+};
+
+
+/***/ }),
+/* 256 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var base64Url = __webpack_require__(23).fromBase64;
+var Buffer = __webpack_require__(41).Buffer;
+
+var getParamBytesForAlg = __webpack_require__(257);
+
+var MAX_OCTET = 0x80,
+	CLASS_UNIVERSAL = 0,
+	PRIMITIVE_BIT = 0x20,
+	TAG_SEQ = 0x10,
+	TAG_INT = 0x02,
+	ENCODED_TAG_SEQ = (TAG_SEQ | PRIMITIVE_BIT) | (CLASS_UNIVERSAL << 6),
+	ENCODED_TAG_INT = TAG_INT | (CLASS_UNIVERSAL << 6);
+
+function signatureAsBuffer(signature) {
+	if (Buffer.isBuffer(signature)) {
+		return signature;
+	} else if ('string' === typeof signature) {
+		return Buffer.from(signature, 'base64');
+	}
+
+	throw new TypeError('ECDSA signature must be a Base64 string or a Buffer');
+}
+
+function derToJose(signature, alg) {
+	signature = signatureAsBuffer(signature);
+	var paramBytes = getParamBytesForAlg(alg);
+
+	// the DER encoded param should at most be the param size, plus a padding
+	// zero, since due to being a signed integer
+	var maxEncodedParamLength = paramBytes + 1;
+
+	var inputLength = signature.length;
+
+	var offset = 0;
+	if (signature[offset++] !== ENCODED_TAG_SEQ) {
+		throw new Error('Could not find expected "seq"');
+	}
+
+	var seqLength = signature[offset++];
+	if (seqLength === (MAX_OCTET | 1)) {
+		seqLength = signature[offset++];
+	}
+
+	if (inputLength - offset < seqLength) {
+		throw new Error('"seq" specified length of "' + seqLength + '", only "' + (inputLength - offset) + '" remaining');
+	}
+
+	if (signature[offset++] !== ENCODED_TAG_INT) {
+		throw new Error('Could not find expected "int" for "r"');
+	}
+
+	var rLength = signature[offset++];
+
+	if (inputLength - offset - 2 < rLength) {
+		throw new Error('"r" specified length of "' + rLength + '", only "' + (inputLength - offset - 2) + '" available');
+	}
+
+	if (maxEncodedParamLength < rLength) {
+		throw new Error('"r" specified length of "' + rLength + '", max of "' + maxEncodedParamLength + '" is acceptable');
+	}
+
+	var rOffset = offset;
+	offset += rLength;
+
+	if (signature[offset++] !== ENCODED_TAG_INT) {
+		throw new Error('Could not find expected "int" for "s"');
+	}
+
+	var sLength = signature[offset++];
+
+	if (inputLength - offset !== sLength) {
+		throw new Error('"s" specified length of "' + sLength + '", expected "' + (inputLength - offset) + '"');
+	}
+
+	if (maxEncodedParamLength < sLength) {
+		throw new Error('"s" specified length of "' + sLength + '", max of "' + maxEncodedParamLength + '" is acceptable');
+	}
+
+	var sOffset = offset;
+	offset += sLength;
+
+	if (offset !== inputLength) {
+		throw new Error('Expected to consume entire buffer, but "' + (inputLength - offset) + '" bytes remain');
+	}
+
+	var rPadding = paramBytes - rLength,
+		sPadding = paramBytes - sLength;
+
+	var dst = Buffer.allocUnsafe(rPadding + rLength + sPadding + sLength);
+
+	for (offset = 0; offset < rPadding; ++offset) {
+		dst[offset] = 0;
+	}
+	signature.copy(dst, offset, rOffset + Math.max(-rPadding, 0), rOffset + rLength);
+
+	offset = paramBytes;
+
+	for (var o = offset; offset < o + sPadding; ++offset) {
+		dst[offset] = 0;
+	}
+	signature.copy(dst, offset, sOffset + Math.max(-sPadding, 0), sOffset + sLength);
+
+	dst = dst.toString('base64');
+	dst = base64Url(dst);
+
+	return dst;
+}
+
+function countPadding(buf, start, stop) {
+	var padding = 0;
+	while (start + padding < stop && buf[start + padding] === 0) {
+		++padding;
+	}
+
+	var needsSign = buf[start + padding] >= MAX_OCTET;
+	if (needsSign) {
+		--padding;
+	}
+
+	return padding;
+}
+
+function joseToDer(signature, alg) {
+	signature = signatureAsBuffer(signature);
+	var paramBytes = getParamBytesForAlg(alg);
+
+	var signatureBytes = signature.length;
+	if (signatureBytes !== paramBytes * 2) {
+		throw new TypeError('"' + alg + '" signatures must be "' + paramBytes * 2 + '" bytes, saw "' + signatureBytes + '"');
+	}
+
+	var rPadding = countPadding(signature, 0, paramBytes);
+	var sPadding = countPadding(signature, paramBytes, signature.length);
+	var rLength = paramBytes - rPadding;
+	var sLength = paramBytes - sPadding;
+
+	var rsBytes = 1 + 1 + rLength + 1 + 1 + sLength;
+
+	var shortLength = rsBytes < MAX_OCTET;
+
+	var dst = Buffer.allocUnsafe((shortLength ? 2 : 3) + rsBytes);
+
+	var offset = 0;
+	dst[offset++] = ENCODED_TAG_SEQ;
+	if (shortLength) {
+		// Bit 8 has value "0"
+		// bits 7-1 give the length.
+		dst[offset++] = rsBytes;
+	} else {
+		// Bit 8 of first octet has value "1"
+		// bits 7-1 give the number of additional length octets.
+		dst[offset++] = MAX_OCTET	| 1;
+		// length, base 256
+		dst[offset++] = rsBytes & 0xff;
+	}
+	dst[offset++] = ENCODED_TAG_INT;
+	dst[offset++] = rLength;
+	if (rPadding < 0) {
+		dst[offset++] = 0;
+		offset += signature.copy(dst, offset, 0, paramBytes);
+	} else {
+		offset += signature.copy(dst, offset, rPadding, paramBytes);
+	}
+	dst[offset++] = ENCODED_TAG_INT;
+	dst[offset++] = sLength;
+	if (sPadding < 0) {
+		dst[offset++] = 0;
+		signature.copy(dst, offset, paramBytes);
+	} else {
+		signature.copy(dst, offset, paramBytes + sPadding);
+	}
+
+	return dst;
+}
+
+module.exports = {
+	derToJose: derToJose,
+	joseToDer: joseToDer
+};
+
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function getParamSize(keySize) {
+	var result = ((keySize / 8) | 0) + (keySize % 8 === 0 ? 0 : 1);
+	return result;
+}
+
+var paramBytesForAlg = {
+	ES256: getParamSize(256),
+	ES384: getParamSize(384),
+	ES512: getParamSize(521)
+};
+
+function getParamBytesForAlg(alg) {
+	var paramBytes = paramBytesForAlg[alg];
+	if (paramBytes) {
+		return paramBytes;
+	}
+
+	throw new Error('Unknown algorithm "' + alg + '"');
+}
+
+module.exports = getParamBytesForAlg;
+
+
+/***/ }),
+/* 258 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*global module*/
+var base64url = __webpack_require__(23);
+var DataStream = __webpack_require__(164);
+var jwa = __webpack_require__(165);
+var Stream = __webpack_require__(3);
+var toString = __webpack_require__(166);
+var util = __webpack_require__(5);
+var JWS_REGEX = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
+
+function isObject(thing) {
+  return Object.prototype.toString.call(thing) === '[object Object]';
+}
+
+function safeJsonParse(thing) {
+  if (isObject(thing))
+    return thing;
+  try { return JSON.parse(thing); }
+  catch (e) { return undefined; }
+}
+
+function headerFromJWS(jwsSig) {
+  var encodedHeader = jwsSig.split('.', 1)[0];
+  return safeJsonParse(base64url.decode(encodedHeader, 'binary'));
+}
+
+function securedInputFromJWS(jwsSig) {
+  return jwsSig.split('.', 2).join('.');
+}
+
+function signatureFromJWS(jwsSig) {
+  return jwsSig.split('.')[2];
+}
+
+function payloadFromJWS(jwsSig, encoding) {
+  encoding = encoding || 'utf8';
+  var payload = jwsSig.split('.')[1];
+  return base64url.decode(payload, encoding);
+}
+
+function isValidJws(string) {
+  return JWS_REGEX.test(string) && !!headerFromJWS(string);
+}
+
+function jwsVerify(jwsSig, algorithm, secretOrKey) {
+  if (!algorithm) {
+    var err = new Error("Missing algorithm parameter for jws.verify");
+    err.code = "MISSING_ALGORITHM";
+    throw err;
+  }
+  jwsSig = toString(jwsSig);
+  var signature = signatureFromJWS(jwsSig);
+  var securedInput = securedInputFromJWS(jwsSig);
+  var algo = jwa(algorithm);
+  return algo.verify(securedInput, signature, secretOrKey);
+}
+
+function jwsDecode(jwsSig, opts) {
+  opts = opts || {};
+  jwsSig = toString(jwsSig);
+
+  if (!isValidJws(jwsSig))
+    return null;
+
+  var header = headerFromJWS(jwsSig);
+
+  if (!header)
+    return null;
+
+  var payload = payloadFromJWS(jwsSig);
+  if (header.typ === 'JWT' || opts.json)
+    payload = JSON.parse(payload, opts.encoding);
+
+  return {
+    header: header,
+    payload: payload,
+    signature: signatureFromJWS(jwsSig)
+  };
+}
+
+function VerifyStream(opts) {
+  opts = opts || {};
+  var secretOrKey = opts.secret||opts.publicKey||opts.key;
+  var secretStream = new DataStream(secretOrKey);
+  this.readable = true;
+  this.algorithm = opts.algorithm;
+  this.encoding = opts.encoding;
+  this.secret = this.publicKey = this.key = secretStream;
+  this.signature = new DataStream(opts.signature);
+  this.secret.once('close', function () {
+    if (!this.signature.writable && this.readable)
+      this.verify();
+  }.bind(this));
+
+  this.signature.once('close', function () {
+    if (!this.secret.writable && this.readable)
+      this.verify();
+  }.bind(this));
+}
+util.inherits(VerifyStream, Stream);
+VerifyStream.prototype.verify = function verify() {
+  try {
+    var valid = jwsVerify(this.signature.buffer, this.algorithm, this.key.buffer);
+    var obj = jwsDecode(this.signature.buffer, this.encoding);
+    this.emit('done', valid, obj);
+    this.emit('data', valid);
+    this.emit('end');
+    this.readable = false;
+    return valid;
+  } catch (e) {
+    this.readable = false;
+    this.emit('error', e);
+    this.emit('close');
+  }
+};
+
+VerifyStream.decode = jwsDecode;
+VerifyStream.isValid = isValidJws;
+VerifyStream.verify = jwsVerify;
+
+module.exports = VerifyStream;
+
+
+/***/ }),
+/* 259 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var JsonWebTokenError = __webpack_require__(25);
+var NotBeforeError    = __webpack_require__(167);
+var TokenExpiredError = __webpack_require__(168);
+var decode            = __webpack_require__(163);
+var timespan          = __webpack_require__(169);
+var jws               = __webpack_require__(40);
+var xtend             = __webpack_require__(170);
+
+module.exports = function (jwtString, secretOrPublicKey, options, callback) {
+  if ((typeof options === 'function') && !callback) {
+    callback = options;
+    options = {};
+  }
+
+  if (!options) {
+    options = {};
+  }
+
+  //clone this object since we are going to mutate it.
+  options = xtend(options);
+  var done;
+
+  if (callback) {
+    done = callback;
+  } else {
+    done = function(err, data) {
+      if (err) throw err;
+      return data;
+    };
+  }
+
+  if (options.clockTimestamp && typeof options.clockTimestamp !== 'number') {
+    return done(new JsonWebTokenError('clockTimestamp must be a number'));
+  }
+
+  var clockTimestamp = options.clockTimestamp || Math.floor(Date.now() / 1000);
+
+  if (!jwtString){
+    return done(new JsonWebTokenError('jwt must be provided'));
+  }
+
+  if (typeof jwtString !== 'string') {
+    return done(new JsonWebTokenError('jwt must be a string'));
+  }
+
+  var parts = jwtString.split('.');
+
+  if (parts.length !== 3){
+    return done(new JsonWebTokenError('jwt malformed'));
+  }
+
+  var hasSignature = parts[2].trim() !== '';
+
+  if (!hasSignature && secretOrPublicKey){
+    return done(new JsonWebTokenError('jwt signature is required'));
+  }
+
+  if (hasSignature && !secretOrPublicKey) {
+    return done(new JsonWebTokenError('secret or public key must be provided'));
+  }
+
+  if (!hasSignature && !options.algorithms) {
+    options.algorithms = ['none'];
+  }
+
+  if (!options.algorithms) {
+    options.algorithms = ~secretOrPublicKey.toString().indexOf('BEGIN CERTIFICATE') ||
+                         ~secretOrPublicKey.toString().indexOf('BEGIN PUBLIC KEY') ?
+                          [ 'RS256','RS384','RS512','ES256','ES384','ES512' ] :
+                         ~secretOrPublicKey.toString().indexOf('BEGIN RSA PUBLIC KEY') ?
+                          [ 'RS256','RS384','RS512' ] :
+                          [ 'HS256','HS384','HS512' ];
+
+  }
+
+  var decodedToken;
+  try {
+    decodedToken = jws.decode(jwtString);
+  } catch(err) {
+    return done(err);
+  }
+
+  if (!decodedToken) {
+    return done(new JsonWebTokenError('invalid token'));
+  }
+
+  var header = decodedToken.header;
+
+  if (!~options.algorithms.indexOf(header.alg)) {
+    return done(new JsonWebTokenError('invalid algorithm'));
+  }
+
+  var valid;
+
+  try {
+    valid = jws.verify(jwtString, header.alg, secretOrPublicKey);
+  } catch (e) {
+    return done(e);
+  }
+
+  if (!valid)
+    return done(new JsonWebTokenError('invalid signature'));
+
+  var payload;
+
+  try {
+    payload = decode(jwtString);
+  } catch(err) {
+    return done(err);
+  }
+
+  if (typeof payload.nbf !== 'undefined' && !options.ignoreNotBefore) {
+    if (typeof payload.nbf !== 'number') {
+      return done(new JsonWebTokenError('invalid nbf value'));
+    }
+    if (payload.nbf > clockTimestamp + (options.clockTolerance || 0)) {
+      return done(new NotBeforeError('jwt not active', new Date(payload.nbf * 1000)));
+    }
+  }
+
+  if (typeof payload.exp !== 'undefined' && !options.ignoreExpiration) {
+    if (typeof payload.exp !== 'number') {
+      return done(new JsonWebTokenError('invalid exp value'));
+    }
+    if (clockTimestamp >= payload.exp + (options.clockTolerance || 0)) {
+      return done(new TokenExpiredError('jwt expired', new Date(payload.exp * 1000)));
+    }
+  }
+
+  if (options.audience) {
+    var audiences = Array.isArray(options.audience)? options.audience : [options.audience];
+    var target = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+
+    var match = target.some(function(targetAudience) {
+      return audiences.some(function(audience) {
+        return audience instanceof RegExp ? audience.test(targetAudience) : audience === targetAudience;
+      });
+    });
+
+    if (!match)
+      return done(new JsonWebTokenError('jwt audience invalid. expected: ' + audiences.join(' or ')));
+  }
+
+  if (options.issuer) {
+    var invalid_issuer =
+        (typeof options.issuer === 'string' && payload.iss !== options.issuer) ||
+        (Array.isArray(options.issuer) && options.issuer.indexOf(payload.iss) === -1);
+
+    if (invalid_issuer) {
+      return done(new JsonWebTokenError('jwt issuer invalid. expected: ' + options.issuer));
+    }
+  }
+
+  if (options.subject) {
+    if (payload.sub !== options.subject) {
+      return done(new JsonWebTokenError('jwt subject invalid. expected: ' + options.subject));
+    }
+  }
+
+  if (options.jwtid) {
+    if (payload.jti !== options.jwtid) {
+      return done(new JsonWebTokenError('jwt jwtid invalid. expected: ' + options.jwtid));
+    }
+  }
+
+  if (options.maxAge) {
+    if (typeof payload.iat !== 'number') {
+      return done(new JsonWebTokenError('iat required when maxAge is specified'));
+    }
+
+    var maxAgeTimestamp = timespan(options.maxAge, payload.iat);
+    if (typeof maxAgeTimestamp === 'undefined') {
+      return done(new JsonWebTokenError('"maxAge" should be a number of seconds or string representing a timespan eg: "1d", "20h", 60'));
+    }
+    if (clockTimestamp >= maxAgeTimestamp + (options.clockTolerance || 0)) {
+      return done(new TokenExpiredError('maxAge exceeded', new Date(maxAgeTimestamp * 1000)));
+    }
+  }
+
+  return done(null, payload);
+};
+
+
+/***/ }),
+/* 260 */
+/***/ (function(module, exports) {
+
+/**
+ * Helpers.
+ */
+
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var w = d * 7;
+var y = d * 365.25;
+
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} [options]
+ * @throws {Error} throw an error if val is not a non-empty string or a number
+ * @return {String|Number}
+ * @api public
+ */
+
+module.exports = function(val, options) {
+  options = options || {};
+  var type = typeof val;
+  if (type === 'string' && val.length > 0) {
+    return parse(val);
+  } else if (type === 'number' && isNaN(val) === false) {
+    return options.long ? fmtLong(val) : fmtShort(val);
+  }
+  throw new Error(
+    'val is not a non-empty string or a valid number. val=' +
+      JSON.stringify(val)
+  );
+};
+
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
+
+function parse(str) {
+  str = String(str);
+  if (str.length > 100) {
+    return;
+  }
+  var match = /^((?:\d+)?\-?\d?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+    str
+  );
+  if (!match) {
+    return;
+  }
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'yrs':
+    case 'yr':
+    case 'y':
+      return n * y;
+    case 'weeks':
+    case 'week':
+    case 'w':
+      return n * w;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'hrs':
+    case 'hr':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'mins':
+    case 'min':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
+      return n * s;
+    case 'milliseconds':
+    case 'millisecond':
+    case 'msecs':
+    case 'msec':
+    case 'ms':
+      return n;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function fmtShort(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return Math.round(ms / d) + 'd';
+  }
+  if (msAbs >= h) {
+    return Math.round(ms / h) + 'h';
+  }
+  if (msAbs >= m) {
+    return Math.round(ms / m) + 'm';
+  }
+  if (msAbs >= s) {
+    return Math.round(ms / s) + 's';
+  }
+  return ms + 'ms';
+}
+
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function fmtLong(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return plural(ms, msAbs, d, 'day');
+  }
+  if (msAbs >= h) {
+    return plural(ms, msAbs, h, 'hour');
+  }
+  if (msAbs >= m) {
+    return plural(ms, msAbs, m, 'minute');
+  }
+  if (msAbs >= s) {
+    return plural(ms, msAbs, s, 'second');
+  }
+  return ms + ' ms';
+}
+
+/**
+ * Pluralization helper.
+ */
+
+function plural(ms, msAbs, n, name) {
+  var isPlural = msAbs >= n * 1.5;
+  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
+}
+
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var timespan = __webpack_require__(169);
+var xtend = __webpack_require__(170);
+var jws = __webpack_require__(40);
+var includes = __webpack_require__(262);
+var isBoolean = __webpack_require__(263);
+var isInteger = __webpack_require__(264);
+var isNumber = __webpack_require__(265);
+var isPlainObject = __webpack_require__(266);
+var isString = __webpack_require__(267);
+var once = __webpack_require__(268);
+
+var sign_options_schema = {
+  expiresIn: { isValid: function(value) { return isInteger(value) || isString(value); }, message: '"expiresIn" should be a number of seconds or string representing a timespan' },
+  notBefore: { isValid: function(value) { return isInteger(value) || isString(value); }, message: '"notBefore" should be a number of seconds or string representing a timespan' },
+  audience: { isValid: function(value) { return isString(value) || Array.isArray(value); }, message: '"audience" must be a string or array' },
+  algorithm: { isValid: includes.bind(null, ['RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512', 'HS256', 'HS384', 'HS512', 'none']), message: '"algorithm" must be a valid string enum value' },
+  header: { isValid: isPlainObject, message: '"header" must be an object' },
+  encoding: { isValid: isString, message: '"encoding" must be a string' },
+  issuer: { isValid: isString, message: '"issuer" must be a string' },
+  subject: { isValid: isString, message: '"subject" must be a string' },
+  jwtid: { isValid: isString, message: '"jwtid" must be a string' },
+  noTimestamp: { isValid: isBoolean, message: '"noTimestamp" must be a boolean' },
+  keyid: { isValid: isString, message: '"keyid" must be a string' }
+};
+
+var registered_claims_schema = {
+  iat: { isValid: isNumber, message: '"iat" should be a number of seconds' },
+  exp: { isValid: isNumber, message: '"exp" should be a number of seconds' },
+  nbf: { isValid: isNumber, message: '"nbf" should be a number of seconds' }
+};
+
+function validate(schema, allowUnknown, object, parameterName) {
+  if (!isPlainObject(object)) {
+    throw new Error('Expected "' + parameterName + '" to be a plain object.');
+  }
+  Object.keys(object)
+    .forEach(function(key) {
+      var validator = schema[key];
+      if (!validator) {
+        if (!allowUnknown) {
+          throw new Error('"' + key + '" is not allowed in "' + parameterName + '"');
+        }
+        return;
+      }
+      if (!validator.isValid(object[key])) {
+        throw new Error(validator.message);
+      }
+    });
+}
+
+function validateOptions(options) {
+  return validate(sign_options_schema, false, options, 'options');
+}
+
+function validatePayload(payload) {
+  return validate(registered_claims_schema, true, payload, 'payload');
+}
+
+var options_to_payload = {
+  'audience': 'aud',
+  'issuer': 'iss',
+  'subject': 'sub',
+  'jwtid': 'jti'
+};
+
+var options_for_objects = [
+  'expiresIn',
+  'notBefore',
+  'noTimestamp',
+  'audience',
+  'issuer',
+  'subject',
+  'jwtid',
+];
+
+module.exports = function (payload, secretOrPrivateKey, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else {
+    options = options || {};
+  }
+
+  var isObjectPayload = typeof payload === 'object' &&
+                        !Buffer.isBuffer(payload);
+
+  var header = xtend({
+    alg: options.algorithm || 'HS256',
+    typ: isObjectPayload ? 'JWT' : undefined,
+    kid: options.keyid
+  }, options.header);
+
+  function failure(err) {
+    if (callback) {
+      return callback(err);
+    }
+    throw err;
+  }
+
+  if (!secretOrPrivateKey && options.algorithm !== 'none') {
+    return failure(new Error('secretOrPrivateKey must have a value'));
+  }
+
+  if (typeof payload === 'undefined') {
+    return failure(new Error('payload is required'));
+  } else if (isObjectPayload) {
+    try {
+      validatePayload(payload);
+    }
+    catch (error) {
+      return failure(error);
+    }
+    payload = xtend(payload);
+  } else {
+    var invalid_options = options_for_objects.filter(function (opt) {
+      return typeof options[opt] !== 'undefined';
+    });
+
+    if (invalid_options.length > 0) {
+      return failure(new Error('invalid ' + invalid_options.join(',') + ' option for ' + (typeof payload ) + ' payload'));
+    }
+  }
+
+  if (typeof payload.exp !== 'undefined' && typeof options.expiresIn !== 'undefined') {
+    return failure(new Error('Bad "options.expiresIn" option the payload already has an "exp" property.'));
+  }
+
+  if (typeof payload.nbf !== 'undefined' && typeof options.notBefore !== 'undefined') {
+    return failure(new Error('Bad "options.notBefore" option the payload already has an "nbf" property.'));
+  }
+
+  try {
+    validateOptions(options);
+  }
+  catch (error) {
+    return failure(error);
+  }
+
+  var timestamp = payload.iat || Math.floor(Date.now() / 1000);
+
+  if (!options.noTimestamp) {
+    payload.iat = timestamp;
+  } else {
+    delete payload.iat;
+  }
+
+  if (typeof options.notBefore !== 'undefined') {
+    payload.nbf = timespan(options.notBefore, timestamp);
+    if (typeof payload.nbf === 'undefined') {
+      return failure(new Error('"notBefore" should be a number of seconds or string representing a timespan eg: "1d", "20h", 60'));
+    }
+  }
+
+  if (typeof options.expiresIn !== 'undefined' && typeof payload === 'object') {
+    payload.exp = timespan(options.expiresIn, timestamp);
+    if (typeof payload.exp === 'undefined') {
+      return failure(new Error('"expiresIn" should be a number of seconds or string representing a timespan eg: "1d", "20h", 60'));
+    }
+  }
+
+  Object.keys(options_to_payload).forEach(function (key) {
+    var claim = options_to_payload[key];
+    if (typeof options[key] !== 'undefined') {
+      if (typeof payload[claim] !== 'undefined') {
+        return failure(new Error('Bad "options.' + key + '" option. The payload already has an "' + claim + '" property.'));
+      }
+      payload[claim] = options[key];
+    }
+  });
+
+  var encoding = options.encoding || 'utf8';
+
+  if (typeof callback === 'function') {
+    callback = callback && once(callback);
+
+    jws.createSign({
+      header: header,
+      privateKey: secretOrPrivateKey,
+      payload: payload,
+      encoding: encoding
+    }).once('error', callback)
+      .once('done', function (signature) {
+        callback(null, signature);
+      });
+  } else {
+    return jws.sign({header: header, payload: payload, secret: secretOrPrivateKey, encoding: encoding});
+  }
+};
+
+
+/***/ }),
+/* 262 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_SAFE_INTEGER = 9007199254740991,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    stringTag = '[object String]',
+    symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array ? array.length : 0,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.findIndex` and `_.findLastIndex` without
+ * support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Function} predicate The function invoked per iteration.
+ * @param {number} fromIndex The index to search from.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseFindIndex(array, predicate, fromIndex, fromRight) {
+  var length = array.length,
+      index = fromIndex + (fromRight ? 1 : -1);
+
+  while ((fromRight ? index-- : ++index < length)) {
+    if (predicate(array[index], index, array)) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/**
+ * The base implementation of `_.indexOf` without `fromIndex` bounds checks.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} fromIndex The index to search from.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function baseIndexOf(array, value, fromIndex) {
+  if (value !== value) {
+    return baseFindIndex(array, baseIsNaN, fromIndex);
+  }
+  var index = fromIndex - 1,
+      length = array.length;
+
+  while (++index < length) {
+    if (array[index] === value) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/**
+ * The base implementation of `_.isNaN` without support for number objects.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is `NaN`, else `false`.
+ */
+function baseIsNaN(value) {
+  return value !== value;
+}
+
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.values` and `_.valuesIn` which creates an
+ * array of `object` property values corresponding to the property names
+ * of `props`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array} props The property names to get values for.
+ * @returns {Object} Returns the array of property values.
+ */
+function baseValues(object, props) {
+  return arrayMap(props, function(key) {
+    return object[key];
+  });
+}
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = overArg(Object.keys, Object),
+    nativeMax = Math.max;
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  // Safari 9 makes `arguments.length` enumerable in strict mode.
+  var result = (isArray(value) || isArguments(value))
+    ? baseTimes(value.length, String)
+    : [];
+
+  var length = result.length,
+      skipIndexes = !!length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty.call(value, key)) &&
+        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!isPrototype(object)) {
+    return nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length &&
+    (typeof value == 'number' || reIsUint.test(value)) &&
+    (value > -1 && value % 1 == 0 && value < length);
+}
+
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+  return value === proto;
+}
+
+/**
+ * Checks if `value` is in `collection`. If `collection` is a string, it's
+ * checked for a substring of `value`, otherwise
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * is used for equality comparisons. If `fromIndex` is negative, it's used as
+ * the offset from the end of `collection`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object|string} collection The collection to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} [fromIndex=0] The index to search from.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
+ * @returns {boolean} Returns `true` if `value` is found, else `false`.
+ * @example
+ *
+ * _.includes([1, 2, 3], 1);
+ * // => true
+ *
+ * _.includes([1, 2, 3], 1, 2);
+ * // => false
+ *
+ * _.includes({ 'a': 1, 'b': 2 }, 1);
+ * // => true
+ *
+ * _.includes('abcd', 'bc');
+ * // => true
+ */
+function includes(collection, value, fromIndex, guard) {
+  collection = isArrayLike(collection) ? collection : values(collection);
+  fromIndex = (fromIndex && !guard) ? toInteger(fromIndex) : 0;
+
+  var length = collection.length;
+  if (fromIndex < 0) {
+    fromIndex = nativeMax(length + fromIndex, 0);
+  }
+  return isString(collection)
+    ? (fromIndex <= length && collection.indexOf(value, fromIndex) > -1)
+    : (!!length && baseIndexOf(collection, value, fromIndex) > -1);
+}
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+function isArguments(value) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength(value.length) && !isFunction(value);
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8-9 which returns 'object' for typed array and other constructors.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a string, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString(value) {
+  return typeof value == 'string' ||
+    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+}
+
+/**
+ * Creates an array of the own enumerable string keyed property values of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property values.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.values(new Foo);
+ * // => [1, 2] (iteration order is not guaranteed)
+ *
+ * _.values('hi');
+ * // => ['h', 'i']
+ */
+function values(object) {
+  return object ? baseValues(object, keys(object)) : [];
+}
+
+module.exports = includes;
+
+
+/***/ }),
+/* 263 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var boolTag = '[object Boolean]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is classified as a boolean primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isBoolean(false);
+ * // => true
+ *
+ * _.isBoolean(null);
+ * // => false
+ */
+function isBoolean(value) {
+  return value === true || value === false ||
+    (isObjectLike(value) && objectToString.call(value) == boolTag);
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+module.exports = isBoolean;
+
+
+/***/ }),
+/* 264 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is an integer.
+ *
+ * **Note:** This method is based on
+ * [`Number.isInteger`](https://mdn.io/Number/isInteger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an integer, else `false`.
+ * @example
+ *
+ * _.isInteger(3);
+ * // => true
+ *
+ * _.isInteger(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isInteger(Infinity);
+ * // => false
+ *
+ * _.isInteger('3');
+ * // => false
+ */
+function isInteger(value) {
+  return typeof value == 'number' && value == toInteger(value);
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = isInteger;
+
+
+/***/ }),
+/* 265 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash 3.0.3 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var numberTag = '[object Number]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Number` primitive or object.
+ *
+ * **Note:** To exclude `Infinity`, `-Infinity`, and `NaN`, which are classified
+ * as numbers, use the `_.isFinite` method.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isNumber(3);
+ * // => true
+ *
+ * _.isNumber(Number.MIN_VALUE);
+ * // => true
+ *
+ * _.isNumber(Infinity);
+ * // => true
+ *
+ * _.isNumber('3');
+ * // => false
+ */
+function isNumber(value) {
+  return typeof value == 'number' ||
+    (isObjectLike(value) && objectToString.call(value) == numberTag);
+}
+
+module.exports = isNumber;
+
+
+/***/ }),
+/* 266 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** `Object#toString` result references. */
+var objectTag = '[object Object]';
+
+/**
+ * Checks if `value` is a host object in IE < 9.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
+ */
+function isHostObject(value) {
+  // Many host objects are `Object` objects that can coerce to strings
+  // despite having improperly defined `toString` methods.
+  var result = false;
+  if (value != null && typeof value.toString != 'function') {
+    try {
+      result = !!(value + '');
+    } catch (e) {}
+  }
+  return result;
+}
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype,
+    objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Used to infer the `Object` constructor. */
+var objectCtorString = funcToString.call(Object);
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var getPrototype = overArg(Object.getPrototypeOf, Object);
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is a plain object, that is, an object created by the
+ * `Object` constructor or one with a `[[Prototype]]` of `null`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.8.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ * }
+ *
+ * _.isPlainObject(new Foo);
+ * // => false
+ *
+ * _.isPlainObject([1, 2, 3]);
+ * // => false
+ *
+ * _.isPlainObject({ 'x': 0, 'y': 0 });
+ * // => true
+ *
+ * _.isPlainObject(Object.create(null));
+ * // => true
+ */
+function isPlainObject(value) {
+  if (!isObjectLike(value) ||
+      objectToString.call(value) != objectTag || isHostObject(value)) {
+    return false;
+  }
+  var proto = getPrototype(value);
+  if (proto === null) {
+    return true;
+  }
+  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+  return (typeof Ctor == 'function' &&
+    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+}
+
+module.exports = isPlainObject;
+
+
+/***/ }),
+/* 267 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash 4.0.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var stringTag = '[object String]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @type Function
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString(value) {
+  return typeof value == 'string' ||
+    (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+}
+
+module.exports = isString;
+
+
+/***/ }),
+/* 268 */
+/***/ (function(module, exports) {
+
+/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308,
+    NAN = 0 / 0;
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/**
+ * Creates a function that invokes `func`, with the `this` binding and arguments
+ * of the created function, while it's called less than `n` times. Subsequent
+ * calls to the created function return the result of the last `func` invocation.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Function
+ * @param {number} n The number of calls at which `func` is no longer invoked.
+ * @param {Function} func The function to restrict.
+ * @returns {Function} Returns the new restricted function.
+ * @example
+ *
+ * jQuery(element).on('click', _.before(5, addContactToList));
+ * // => Allows adding up to 4 contacts to the list.
+ */
+function before(n, func) {
+  var result;
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  n = toInteger(n);
+  return function() {
+    if (--n > 0) {
+      result = func.apply(this, arguments);
+    }
+    if (n <= 1) {
+      func = undefined;
+    }
+    return result;
+  };
+}
+
+/**
+ * Creates a function that is restricted to invoking `func` once. Repeat calls
+ * to the function return the value of the first invocation. The `func` is
+ * invoked with the `this` binding and arguments of the created function.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to restrict.
+ * @returns {Function} Returns the new restricted function.
+ * @example
+ *
+ * var initialize = _.once(createApplication);
+ * initialize();
+ * initialize();
+ * // => `createApplication` is invoked once
+ */
+function once(func) {
+  return before(2, func);
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+}
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = once;
+
+
+/***/ }),
+/* 269 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var lamdaResponse = __webpack_require__(39);
+
+exports.add = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "listings create", event: event, context: context }));
+};
+exports.update = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "listings update", event: event, context: context }));
+};
+exports.getById = function (event, context, callback) {
+    //should be different for public and owner
+    callback(null, lamdaResponse({ msg: "listings getById", event: event, context: context }));
+};
+
+/***/ }),
+/* 270 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var CONFIG = __webpack_require__(249);
+var Boom = __webpack_require__(162);
+var jwt = __webpack_require__(251);
+
+//var logger = require('./logger');
+
+function authorizedJWT(type, request, reply) {
+  logger.debug('authorizedJWT', JSON.stringify({ type: CONFIG.JTW_TOKEN[type], auth: request.auth }));
+  if (request.auth.isAuthenticated && request.auth.credentials.type >= CONFIG.JTW_TOKEN[type] && (request.params && request.params.province === request.auth.credentials.province && request.params.license === request.auth.credentials.license || request.auth.credentials.type === CONFIG.JTW_TOKEN.admin)) {
+    return true;
+  } else {
+    reply(Boom.unauthorized());
+    return false;
+  }
+}
+function validateJWT(token) {
+  console.log('validateJWT');
+  try {
+    var decoded = jwt.verify(token, CONFIG.PUBLIC_KEY);
+    return decoded;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+}
+module.exports = validateJWT;
+
+/***/ }),
+/* 271 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Joi = __webpack_require__(37);
+var validateJWT = __webpack_require__(270);
+module.exports = Joi.extend(function (joi) {
+    return {
+        name: 'token',
+        language: {
+            jwt: 'not valid JWT token.'
+        },
+        coerce: function coerce(value, state, options) {
+            return validateJWT(value);
+        },
+
+        rules: [{
+            name: 'jwt',
+            validate: function validate(params, value, state, options) {
+                console.log('validate', value);
+                if (!value) {
+                    // Generate an error, state and options need to be passed
+                    return this.createError('token.jwt', { v: value }, state, options);
+                }
+                return value; // Everything is OK
+            }
+        }]
+    };
+});
+
+/***/ })
+/******/ ])));
