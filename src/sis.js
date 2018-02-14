@@ -1,5 +1,7 @@
 import { valid } from 'joi';
 var route = require('./src/pathMatch')({});
+var CONFIG = require('./config/config');
+
 //'use strict'
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
@@ -12,7 +14,7 @@ var Joi = require('joi')
 var validateJWT = require('./src/validateJWT')
 const tokenValidationJoi = require('./src/joiTokenValidator')
 var rootPath = '/sis'
-var DEBUG_SIS = true
+var DEBUG_SIS = false
 exports.handler = (event, context, callback) => {
     //console.log("",{event, context})
     //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
@@ -50,6 +52,17 @@ var routes = {
                     "x-api-key": tokenValidationJoi.token().jwt()
                 }
             }
+        },{
+            path:"/people/images/:id",
+            handler:people.getImage,
+            validator: {
+                params: {
+                    id: Joi.number().max(CONFIG.MAX_AUTHOR_IMAGE)
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+            }
         },
         {
             path:"/listings/:id", 
@@ -59,7 +72,27 @@ var routes = {
     "PUT":[
         {
             path:"/people/:id",
-            handler:people.update
+            handler:people.update,
+            validator: {
+                params: {
+                    id: Joi.string().hex().min(8).required()
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                },
+                body:people.updateSchema
+            }
+        },{
+            path:"/people/images/:id",
+            handler:people.updateImage,
+            validator: {
+                params: {
+                    id: Joi.number().max(CONFIG.MAX_AUTHOR_IMAGE)
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+            }
         },{
             path:"/listings/:id",
             handler:listings.update
@@ -68,7 +101,13 @@ var routes = {
     "POST":[
         {
             path:"/people", 
-            handler:people.add
+            handler:people.add,
+            validator: {
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                },
+                body:people.addSchema
+            }
         },
         {
             path:"/listings", 
@@ -100,11 +139,12 @@ function processEvent(event, context, callback) {
                 validator = routes[event.httpMethod][a].validator
                 valid = Joi.validate(event, validator, {allowUnknown: true})
                 if(!valid.error){
+                    event = valid.value
                     break;
                 }
             }
         }
-        if(valid.error){
+        if(valid && valid.error){
             if(DEBUG_SIS){
                 callback(null, lamdaResponse(valid))
             }else{

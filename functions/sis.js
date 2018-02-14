@@ -5664,6 +5664,8 @@ function extend() {
 var _joi = __webpack_require__(37);
 
 var route = __webpack_require__(245)({});
+var CONFIG = __webpack_require__(249);
+
 //'use strict'
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
@@ -5676,7 +5678,7 @@ var Joi = __webpack_require__(37);
 var validateJWT = __webpack_require__(270);
 var tokenValidationJoi = __webpack_require__(271);
 var rootPath = '/sis';
-var DEBUG_SIS = true;
+var DEBUG_SIS = false;
 exports.handler = function (event, context, callback) {
     //console.log("",{event, context})
     //the following line is critical for performance reasons to allow re-use of database connections across calls to this Lambda function and avoid closing the database connection. The first call to this lambda function takes about 5 seconds to complete, while subsequent, close calls will only take a few hundred milliseconds.
@@ -5713,19 +5715,56 @@ var routes = {
             }
         }
     }, {
+        path: "/people/images/:id",
+        handler: people.getImage,
+        validator: {
+            params: {
+                id: Joi.number().max(CONFIG.MAX_AUTHOR_IMAGE)
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+        }
+    }, {
         path: "/listings/:id",
         handler: listings.getById
     }],
     "PUT": [{
         path: "/people/:id",
-        handler: people.update
+        handler: people.update,
+        validator: {
+            params: {
+                id: Joi.string().hex().min(8).required()
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            },
+            body: people.updateSchema
+        }
+    }, {
+        path: "/people/images/:id",
+        handler: people.updateImage,
+        validator: {
+            params: {
+                id: Joi.number().max(CONFIG.MAX_AUTHOR_IMAGE)
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+        }
     }, {
         path: "/listings/:id",
         handler: listings.update
     }],
     "POST": [{
         path: "/people",
-        handler: people.add
+        handler: people.add,
+        validator: {
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            },
+            body: people.addSchema
+        }
     }, {
         path: "/listings",
         handler: listings.add
@@ -5755,11 +5794,12 @@ function processEvent(event, context, callback) {
                 validator = routes[event.httpMethod][a].validator;
                 valid = Joi.validate(event, validator, { allowUnknown: true });
                 if (!valid.error) {
+                    event = valid.value;
                     break;
                 }
             }
         }
-        if (valid.error) {
+        if (valid && valid.error) {
             if (DEBUG_SIS) {
                 callback(null, lamdaResponse(valid));
             } else {
@@ -10154,11 +10194,20 @@ function pathToRegexp(path, keys, options) {
 
 var lamdaResponse = __webpack_require__(39);
 var getJWTToken = __webpack_require__(248);
+var Joi = __webpack_require__(37);
+var joiGetDate = __webpack_require__(272);
+
 exports.add = function (event, context, callback) {
     callback(null, lamdaResponse({ msg: "people create", event: event, context: context }));
 };
 exports.update = function (event, context, callback) {
     callback(null, lamdaResponse({ msg: "people update", event: event, context: context }));
+};
+exports.updateImage = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people update Image", event: event, context: context }));
+};
+exports.getImage = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people get Image", event: event, context: context }));
 };
 exports.getById = function (event, context, callback) {
     //should be different for public and owner
@@ -10167,6 +10216,38 @@ exports.getById = function (event, context, callback) {
 exports.getByIdPublic = function (event, context, callback) {
     //should be different for public and owner
     callback(null, lamdaResponse({ msg: "people getByIdPublic", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
+};
+exports.addSchema = {
+    created_at: joiGetDate.date().now(),
+    updated_at: joiGetDate.date().now(),
+    locale: Joi.string().valid("en", "fr").default('en'),
+    active: Joi.number().valid(0).default(0),
+    username: Joi.string(),
+    email: Joi.string().email(),
+    encrypted_password: Joi.string().min(8),
+    reset_password_token: Joi.string(),
+    given_name: Joi.string(),
+    family_name: Joi.string().required(),
+    phone_number: Joi.number().required(),
+    description: Joi.string(),
+    facebook_id: Joi.string(),
+    is_organization: Joi.boolean(),
+    organization_name: Joi.string()
+};
+exports.updateSchema = {
+    updated_at: joiGetDate.date().now(),
+    locale: Joi.string().valid("en", "fr"),
+    active: Joi.number().valid(0).default(0),
+    username: Joi.string(),
+    email: Joi.string().email(),
+    encrypted_password: Joi.string().min(8),
+    reset_password_token: Joi.string(),
+    given_name: Joi.string(),
+    family_name: Joi.string(),
+    description: Joi.string(),
+    facebook_id: Joi.string(),
+    is_organization: Joi.boolean(),
+    organization_name: Joi.string()
 };
 
 /***/ }),
@@ -10207,7 +10288,7 @@ var PRIVATE_KEY = '-----BEGIN RSA PRIVATE KEY-----\nMIICXAIBAAKBgGklWf9rF9g2Rlcg
 var PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----\nMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGklWf9rF9g2RlcgLxXFc/DnIcPp\nVWnbYTZdbVX58LjAXihHjC/WXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVb\no4ypQyWqip5Ue1YHnUkqu6UBYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhn\nwX5zXGPXO4AvPixpAgMBAAE=\n-----END PUBLIC KEY-----';
 var config = {
   TOKEN_EXPIERY_LENGTH: 1 * 60 * 60 * 1000,
-
+  MAX_AUTHOR_IMAGE: 1,
   WEB_TOKEN_EXPIERY: {
     web: '1h',
     user: '1h',
@@ -13160,6 +13241,34 @@ module.exports = Joi.extend(function (joi) {
                     // Generate an error, state and options need to be passed
                     return this.createError('token.jwt', { v: value }, state, options);
                 }
+                return value; // Everything is OK
+            }
+        }]
+    };
+});
+
+/***/ }),
+/* 272 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Joi = __webpack_require__(37);
+var validateJWT = __webpack_require__(270);
+var CONFIG = __webpack_require__(249);
+
+module.exports = Joi.extend(function (joi) {
+    return {
+        name: 'date',
+
+        coerce: function coerce(value, state, options) {
+            return new Date().toISOString();
+        },
+
+        rules: [{
+            name: 'now',
+            validate: function validate(params, value, state, options) {
                 return value; // Everything is OK
             }
         }]

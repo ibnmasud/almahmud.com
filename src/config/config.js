@@ -22,7 +22,7 @@ wX5zXGPXO4AvPixpAgMBAAE=
 -----END PUBLIC KEY-----`
 var config = {
   TOKEN_EXPIERY_LENGTH: 1 * 60 * 60 * 1000,
-  
+  MAX_AUTHOR_IMAGE:1,
   WEB_TOKEN_EXPIERY: {
     web: '1h',
     user: '1h',
