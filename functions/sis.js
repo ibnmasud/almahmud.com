@@ -5692,18 +5692,21 @@ var lamdaResponse = __webpack_require__(39);
 var routes = {
     "GET": [{
         path: "/people/:id",
-        handler: people.getById,
-        validator: {
-            params: {
-                id: Joi.string().hex().min(8).required()
-            }
-        }
-    }, {
-        path: "/people/:id",
         handler: people.getByIdPublic,
         validator: {
             params: {
                 id: Joi.number().min(8).required()
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+        }
+    }, {
+        path: "/people/:id",
+        handler: people.getById,
+        validator: {
+            params: {
+                id: Joi.string().hex().min(8).required()
             },
             headers: {
                 "x-api-key": tokenValidationJoi.token().jwt()
@@ -5739,22 +5742,9 @@ function processEvent(event, context, callback) {
         var params;
         var valid;
         for (var a in routes[event.httpMethod]) {
-            /*if(routes[event.httpMethod][a].path === event.path){
-                if(routes[event.httpMethod][a].handler && typeof routes[event.httpMethod][a].handler === 'function'){
-                    handler = routes[event.httpMethod][a].handler
-                }
-                if(routes[event.httpMethod][a].validator && typeof routes[event.httpMethod][a].validator === 'object'){
-                    validator = routes[event.httpMethod][a].validator
-                }
-                
-                break
-            }*/
-            //console.log('route')
+
             var match = route(routes[event.httpMethod][a].path);
-            //console.log('match')
             params = match(event.path);
-            //console.log('params',event.path)
-            //console.log('routes[event.httpMethod][a].path',routes[event.httpMethod][a].path)
             if (params !== false) {
                 handler = routes[event.httpMethod][a].handler;
                 event.params = params;
@@ -5764,12 +5754,9 @@ function processEvent(event, context, callback) {
 
                 validator = routes[event.httpMethod][a].validator;
                 valid = Joi.validate(event, validator, { allowUnknown: true });
-                console.log('params-', valid);
                 if (!valid.error) {
                     break;
                 }
-            } else {
-                //console.log('notmatched >',routes[event.httpMethod][a].path)
             }
         }
         if (valid.error) {
@@ -5788,57 +5775,6 @@ function processEvent(event, context, callback) {
     } else {
         callback(null, lamdaResponse(Boom.notFound()));
     }
-    //console.log('Calling MongoDB Atlas from AWS Lambda with event: ' + JSON.stringify(event));
-
-
-    /*var jsonContents = JSON.parse(JSON.stringify(event));
-     
-     //date conversion for grades array
-    if (jsonContents.grades != null) {
-        for (var i = 0, len = jsonContents.grades.length; i < len; i++) {
-            //use the following line if you want to preserve the original dates
-            //jsonContents.grades[i].date = new Date(jsonContents.grades[i].date);
-             //the following line assigns the current date so we can more easily differentiate between similar records
-            jsonContents.grades[i].date = new Date();
-        }
-    }
-     try {
-        //testing if the database connection exists and is connected to Atlas so we can try to re-use it
-        if (cachedDb && cachedDb.serverConfig.isConnected()) {
-            createDoc(cachedDb, jsonContents, callback);
-        }
-        else {
-            //some performance penalty might be incurred when running that database connection initialization code
-            console.log(`=> connecting to database ${atlas_connection_uri}`);
-            MongoClient.connect(atlas_connection_uri, function (err, db) {
-                if (err) {
-                    console.log(`the error is ${err}.`, err)
-                    process.exit(1)
-                }
-                cachedDb = db;
-                return createDoc(db, jsonContents, callback);
-            });            
-        }
-    }
-    catch (err) {
-        console.error('an error occurred', err);
-    }*/
-}
-
-function createDoc(db, json, callback) {
-    db.collection('restaurants').insertOne(json, function (err, result) {
-        if (err != null) {
-            console.error("an error occurred in createDoc", err);
-            callback(null, JSON.stringify(err));
-        } else {
-            var message = 'Kudos! You just created an entry into the restaurants collection with id: ' + result.insertedId;
-            //console.log(message);
-            callback(null, message);
-        }
-        //we don't want to close the connection since we set context.callbackWaitsForEmptyEventLoop to false (see above)
-        //this will let our function re-use the connection on the next called (if it can re-use the same Lambda container)
-        //db.close();
-    });
 };
 
 /***/ }),
@@ -10226,7 +10162,7 @@ exports.update = function (event, context, callback) {
 };
 exports.getById = function (event, context, callback) {
     //should be different for public and owner
-    callback(null, lamdaResponse({ msg: "people getById", event: event, context: context }));
+    callback(null, lamdaResponse({ msg: "people getById", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
 };
 exports.getByIdPublic = function (event, context, callback) {
     //should be different for public and owner
@@ -13201,6 +13137,8 @@ module.exports = validateJWT;
 
 var Joi = __webpack_require__(37);
 var validateJWT = __webpack_require__(270);
+var CONFIG = __webpack_require__(249);
+
 module.exports = Joi.extend(function (joi) {
     return {
         name: 'token',
@@ -13213,9 +13151,12 @@ module.exports = Joi.extend(function (joi) {
 
         rules: [{
             name: 'jwt',
+            params: {
+                q: joi.string().default('web')
+            },
             validate: function validate(params, value, state, options) {
-                console.log('validate', value);
-                if (!value) {
+                console.log('validate', { value: value, params: params });
+                if (!value || CONFIG.JTW_TOKEN[params.q] !== value.type) {
                     // Generate an error, state and options need to be passed
                     return this.createError('token.jwt', { v: value }, state, options);
                 }

@@ -8,7 +8,7 @@ exports.update = (event, context, callback)=>{
 }
 exports.getById = (event, context, callback)=>{
     //should be different for public and owner
-    callback(null, lamdaResponse({msg:"people getById",event, context}))
+    callback(null, lamdaResponse({msg:"people getById",event, context, token:getJWTToken(null, 'web',{})}))
 }
 exports.getByIdPublic = (event, context, callback)=>{
     //should be different for public and owner
