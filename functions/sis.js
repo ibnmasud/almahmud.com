@@ -99,10 +99,9 @@ module.exports = require("path");
 "use strict";
 
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _joi = __webpack_require__(210);
 
+var route = __webpack_require__(231)({});
 //'use strict'
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
@@ -139,10 +138,16 @@ var routes = {
             callback(null, lamdaResponse({ msg: "msg", event: event, context: context }));
         } }, { path: "/people", handler: function handler(event, context, callback) {
             callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
+        } }, { path: "/people/:id", handler: function handler(event, context, callback) {
+            callback(null, lamdaResponse({ msg: "people2", event: event, context: context }));
         } }],
     "POST": [{ path: "", handler: function handler(event, context, callback) {
             callback(null, lamdaResponse({ msg: "msg", event: event, context: context }));
         } }, { path: "/people", handler: function handler(event, context, callback) {
+            callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
+        } }, { path: "/locations", handler: function handler(event, context, callback) {
+            callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
+        } }, { path: "/listings", handler: function handler(event, context, callback) {
             callback(null, lamdaResponse({ msg: "people", event: event, context: context }));
         } }]
 };
@@ -154,16 +159,31 @@ function processEvent(event, context, callback) {
     if (routes[event.httpMethod]) {
         var handler;
         var validator;
+        var params;
         for (var a in routes[event.httpMethod]) {
-            if (routes[event.httpMethod][a].path === event.path) {
-                if (routes[event.httpMethod][a].handler && typeof routes[event.httpMethod][a].handler === 'function') {
-                    handler = routes[event.httpMethod][a].handler;
+            /*if(routes[event.httpMethod][a].path === event.path){
+                if(routes[event.httpMethod][a].handler && typeof routes[event.httpMethod][a].handler === 'function'){
+                    handler = routes[event.httpMethod][a].handler
                 }
-                if (routes[event.httpMethod][a].validator && _typeof(routes[event.httpMethod][a].validator) === 'object') {
-                    validator = routes[event.httpMethod][a].validator;
+                if(routes[event.httpMethod][a].validator && typeof routes[event.httpMethod][a].validator === 'object'){
+                    validator = routes[event.httpMethod][a].validator
                 }
-
+                
+                break
+            }*/
+            console.log('route');
+            var match = route(routes[event.httpMethod][a].path);
+            console.log('match');
+            params = match(event.path);
+            console.log('params', event.path);
+            //console.log('routes[event.httpMethod][a].path',routes[event.httpMethod][a].path)
+            if (params !== false) {
+                handler = routes[event.httpMethod][a].handler;
+                validator = routes[event.httpMethod][a].validator;
+                console.log('params-', params);
                 break;
+            } else {
+                console.log('notmatched >', routes[event.httpMethod][a].path);
             }
         }
         if (validator) {}
@@ -9080,6 +9100,435 @@ module.exports = require("punycode");
 /***/ (function(module, exports) {
 
 module.exports = {"_args":[[{"raw":"joi","scope":null,"escapedName":"joi","name":"joi","rawSpec":"","spec":"latest","type":"tag"},"/Users/almahmud/Documents/PProject/almahmud.com/src"]],"_from":"joi@latest","_id":"joi@13.1.2","_inCache":true,"_location":"/joi","_nodeVersion":"8.9.4","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/joi-13.1.2.tgz_1517599419155_0.6128392068203539"},"_npmUser":{"name":"marsup","email":"nicolas@morel.io"},"_npmVersion":"5.6.0","_phantomChildren":{},"_requested":{"raw":"joi","scope":null,"escapedName":"joi","name":"joi","rawSpec":"","spec":"latest","type":"tag"},"_requiredBy":["#USER"],"_resolved":"https://registry.npmjs.org/joi/-/joi-13.1.2.tgz","_shasum":"b2db260323cc7f919fafa51e09e2275bd089a97e","_shrinkwrap":null,"_spec":"joi","_where":"/Users/almahmud/Documents/PProject/almahmud.com/src","bugs":{"url":"https://github.com/hapijs/joi/issues"},"dependencies":{"hoek":"5.x.x","isemail":"3.x.x","topo":"3.x.x"},"description":"Object schema validation","devDependencies":{"code":"5.x.x","hapitoc":"1.x.x","lab":"15.x.x"},"directories":{},"dist":{"integrity":"sha512-bZZSQYW5lPXenOfENvgCBPb9+H6E6MeNWcMtikI04fKphj5tvFL9TOb+H2apJzbCrRw/jebjTH8z6IHLpBytGg==","shasum":"b2db260323cc7f919fafa51e09e2275bd089a97e","tarball":"https://registry.npmjs.org/joi/-/joi-13.1.2.tgz"},"engines":{"node":">=8.9.0"},"gitHead":"97fa7646d568245d15c8981282a56d721414f28d","homepage":"https://github.com/hapijs/joi","keywords":["hapi","schema","validation"],"license":"BSD-3-Clause","main":"lib/index.js","maintainers":[{"name":"nlf","email":"quitlahok@gmail.com"},{"name":"hueniverse","email":"eran@hammer.io"},{"name":"marsup","email":"nicolas@morel.io"},{"name":"wyatt","email":"wpreul@gmail.com"}],"name":"joi","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git://github.com/hapijs/joi.git"},"scripts":{"test":"lab -t 100 -a code -L","test-cov-html":"lab -r html -o coverage.html -a code","test-debug":"lab -a code","toc":"hapitoc","version":"npm run toc && git add API.md README.md"},"version":"13.1.2","warnings":[{"code":"ENOTSUP","required":{"node":">=8.9.0"},"pkgid":"joi@13.1.2"},{"code":"ENOTSUP","required":{"node":">=8.9.0"},"pkgid":"joi@13.1.2"}]}
+
+/***/ }),
+
+/***/ 231:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var pathToRegexp = __webpack_require__(232);
+var Boom = __webpack_require__(202);
+
+module.exports = function (options) {
+  options = options || {};
+
+  return function (path) {
+    console.log('route ->', path);
+    var keys = [];
+    var re = pathToRegexp(path, keys, options);
+    console.log('--', { path: path, keys: keys, options: options });
+    console.log('-', re);
+    return function (pathname, params) {
+      console.log('match ->', { pathname: pathname, params: params });
+      //console.log('pathname', pathname, params)
+      var m = re.exec(pathname);
+      if (!m) return false;
+
+      params = params || {};
+
+      var key, param;
+      for (var i = 0; i < keys.length; i++) {
+        key = keys[i];
+        param = m[i + 1];
+        if (!param) continue;
+        params[key.name] = decodeParam(param);
+        if (key.repeat) params[key.name] = params[key.name].split(key.delimiter);
+      }
+
+      return params;
+    };
+  };
+};
+
+function decodeParam(param) {
+  try {
+    return decodeURIComponent(param);
+  } catch (_) {
+    throw Boom.badData('failed to decode param "' + param + '"');
+  }
+}
+
+/***/ }),
+
+/***/ 232:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/**
+ * Expose `pathToRegexp`.
+ */
+module.exports = pathToRegexp;
+module.exports.parse = parse;
+module.exports.compile = compile;
+module.exports.tokensToFunction = tokensToFunction;
+module.exports.tokensToRegExp = tokensToRegExp;
+
+/**
+ * Default configs.
+ */
+var DEFAULT_DELIMITER = '/';
+var DEFAULT_DELIMITERS = './';
+
+/**
+ * The main path matching regexp utility.
+ *
+ * @type {RegExp}
+ */
+var PATH_REGEXP = new RegExp([
+// Match escaped characters that would otherwise appear in future matches.
+// This allows the user to escape special characters that won't transform.
+'(\\\\.)',
+// Match Express-style parameters and un-named parameters with a prefix
+// and optional suffixes. Matches appear as:
+//
+// "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?"]
+// "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined]
+'(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?'].join('|'), 'g');
+
+/**
+ * Parse a string for the raw tokens.
+ *
+ * @param  {string}  str
+ * @param  {Object=} options
+ * @return {!Array}
+ */
+function parse(str, options) {
+  var tokens = [];
+  var key = 0;
+  var index = 0;
+  var path = '';
+  var defaultDelimiter = options && options.delimiter || DEFAULT_DELIMITER;
+  var delimiters = options && options.delimiters || DEFAULT_DELIMITERS;
+  var pathEscaped = false;
+  var res;
+
+  while ((res = PATH_REGEXP.exec(str)) !== null) {
+    var m = res[0];
+    var escaped = res[1];
+    var offset = res.index;
+    path += str.slice(index, offset);
+    index = offset + m.length;
+
+    // Ignore already escaped sequences.
+    if (escaped) {
+      path += escaped[1];
+      pathEscaped = true;
+      continue;
+    }
+
+    var prev = '';
+    var next = str[index];
+    var name = res[2];
+    var capture = res[3];
+    var group = res[4];
+    var modifier = res[5];
+
+    if (!pathEscaped && path.length) {
+      var k = path.length - 1;
+
+      if (delimiters.indexOf(path[k]) > -1) {
+        prev = path[k];
+        path = path.slice(0, k);
+      }
+    }
+
+    // Push the current path onto the tokens.
+    if (path) {
+      tokens.push(path);
+      path = '';
+      pathEscaped = false;
+    }
+
+    var partial = prev !== '' && next !== undefined && next !== prev;
+    var repeat = modifier === '+' || modifier === '*';
+    var optional = modifier === '?' || modifier === '*';
+    var delimiter = prev || defaultDelimiter;
+    var pattern = capture || group;
+
+    tokens.push({
+      name: name || key++,
+      prefix: prev,
+      delimiter: delimiter,
+      optional: optional,
+      repeat: repeat,
+      partial: partial,
+      pattern: pattern ? escapeGroup(pattern) : '[^' + escapeString(delimiter) + ']+?'
+    });
+  }
+
+  // Push any remaining characters.
+  if (path || index < str.length) {
+    tokens.push(path + str.substr(index));
+  }
+
+  return tokens;
+}
+
+/**
+ * Compile a string to a template function for the path.
+ *
+ * @param  {string}             str
+ * @param  {Object=}            options
+ * @return {!function(Object=, Object=)}
+ */
+function compile(str, options) {
+  return tokensToFunction(parse(str, options));
+}
+
+/**
+ * Expose a method for transforming tokens into the path function.
+ */
+function tokensToFunction(tokens) {
+  // Compile all the tokens into regexps.
+  var matches = new Array(tokens.length);
+
+  // Compile all the patterns before compilation.
+  for (var i = 0; i < tokens.length; i++) {
+    if (_typeof(tokens[i]) === 'object') {
+      matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$');
+    }
+  }
+
+  return function (data, options) {
+    var path = '';
+    var encode = options && options.encode || encodeURIComponent;
+
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
+
+      if (typeof token === 'string') {
+        path += token;
+        continue;
+      }
+
+      var value = data ? data[token.name] : undefined;
+      var segment;
+
+      if (Array.isArray(value)) {
+        if (!token.repeat) {
+          throw new TypeError('Expected "' + token.name + '" to not repeat, but got array');
+        }
+
+        if (value.length === 0) {
+          if (token.optional) continue;
+
+          throw new TypeError('Expected "' + token.name + '" to not be empty');
+        }
+
+        for (var j = 0; j < value.length; j++) {
+          segment = encode(value[j]);
+
+          if (!matches[i].test(segment)) {
+            throw new TypeError('Expected all "' + token.name + '" to match "' + token.pattern + '"');
+          }
+
+          path += (j === 0 ? token.prefix : token.delimiter) + segment;
+        }
+
+        continue;
+      }
+
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        segment = encode(String(value));
+
+        if (!matches[i].test(segment)) {
+          throw new TypeError('Expected "' + token.name + '" to match "' + token.pattern + '", but got "' + segment + '"');
+        }
+
+        path += token.prefix + segment;
+        continue;
+      }
+
+      if (token.optional) {
+        // Prepend partial segment prefixes.
+        if (token.partial) path += token.prefix;
+
+        continue;
+      }
+
+      throw new TypeError('Expected "' + token.name + '" to be ' + (token.repeat ? 'an array' : 'a string'));
+    }
+
+    return path;
+  };
+}
+
+/**
+ * Escape a regular expression string.
+ *
+ * @param  {string} str
+ * @return {string}
+ */
+function escapeString(str) {
+  return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, '\\$1');
+}
+
+/**
+ * Escape the capturing group by escaping special characters and meaning.
+ *
+ * @param  {string} group
+ * @return {string}
+ */
+function escapeGroup(group) {
+  return group.replace(/([=!:$/()])/g, '\\$1');
+}
+
+/**
+ * Get the flags for a regexp from the options.
+ *
+ * @param  {Object} options
+ * @return {string}
+ */
+function flags(options) {
+  return options && options.sensitive ? '' : 'i';
+}
+
+/**
+ * Pull out keys from a regexp.
+ *
+ * @param  {!RegExp} path
+ * @param  {Array=}  keys
+ * @return {!RegExp}
+ */
+function regexpToRegexp(path, keys) {
+  if (!keys) return path;
+
+  // Use a negative lookahead to match only capturing groups.
+  var groups = path.source.match(/\((?!\?)/g);
+
+  if (groups) {
+    for (var i = 0; i < groups.length; i++) {
+      keys.push({
+        name: i,
+        prefix: null,
+        delimiter: null,
+        optional: false,
+        repeat: false,
+        partial: false,
+        pattern: null
+      });
+    }
+  }
+
+  return path;
+}
+
+/**
+ * Transform an array into a regexp.
+ *
+ * @param  {!Array}  path
+ * @param  {Array=}  keys
+ * @param  {Object=} options
+ * @return {!RegExp}
+ */
+function arrayToRegexp(path, keys, options) {
+  var parts = [];
+
+  for (var i = 0; i < path.length; i++) {
+    parts.push(pathToRegexp(path[i], keys, options).source);
+  }
+
+  return new RegExp('(?:' + parts.join('|') + ')', flags(options));
+}
+
+/**
+ * Create a path regexp from string input.
+ *
+ * @param  {string}  path
+ * @param  {Array=}  keys
+ * @param  {Object=} options
+ * @return {!RegExp}
+ */
+function stringToRegexp(path, keys, options) {
+  return tokensToRegExp(parse(path, options), keys, options);
+}
+
+/**
+ * Expose a function for taking tokens and returning a RegExp.
+ *
+ * @param  {!Array}  tokens
+ * @param  {Array=}  keys
+ * @param  {Object=} options
+ * @return {!RegExp}
+ */
+function tokensToRegExp(tokens, keys, options) {
+  options = options || {};
+
+  var strict = options.strict;
+  var end = options.end !== false;
+  var delimiter = escapeString(options.delimiter || DEFAULT_DELIMITER);
+  var delimiters = options.delimiters || DEFAULT_DELIMITERS;
+  var endsWith = [].concat(options.endsWith || []).map(escapeString).concat('$').join('|');
+  var route = '';
+  var isEndDelimited = false;
+
+  // Iterate over the tokens and create our regexp string.
+  for (var i = 0; i < tokens.length; i++) {
+    var token = tokens[i];
+
+    if (typeof token === 'string') {
+      route += escapeString(token);
+      isEndDelimited = i === tokens.length - 1 && delimiters.indexOf(token[token.length - 1]) > -1;
+    } else {
+      var prefix = escapeString(token.prefix);
+      var capture = token.repeat ? '(?:' + token.pattern + ')(?:' + prefix + '(?:' + token.pattern + '))*' : token.pattern;
+
+      if (keys) keys.push(token);
+
+      if (token.optional) {
+        if (token.partial) {
+          route += prefix + '(' + capture + ')?';
+        } else {
+          route += '(?:' + prefix + '(' + capture + '))?';
+        }
+      } else {
+        route += prefix + '(' + capture + ')';
+      }
+    }
+  }
+
+  if (end) {
+    if (!strict) route += '(?:' + delimiter + ')?';
+
+    route += endsWith === '$' ? '$' : '(?=' + endsWith + ')';
+  } else {
+    if (!strict) route += '(?:' + delimiter + '(?=' + endsWith + '))?';
+    if (!isEndDelimited) route += '(?=' + delimiter + '|' + endsWith + ')';
+  }
+
+  return new RegExp('^' + route, flags(options));
+}
+
+/**
+ * Normalize the given path string, returning a regular expression.
+ *
+ * An empty array can be passed in for the keys, which will hold the
+ * placeholder key descriptions. For example, using `/user/:id`, `keys` will
+ * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
+ *
+ * @param  {(string|RegExp|Array)} path
+ * @param  {Array=}                keys
+ * @param  {Object=}               options
+ * @return {!RegExp}
+ */
+function pathToRegexp(path, keys, options) {
+  if (path instanceof RegExp) {
+    return regexpToRegexp(path, keys);
+  }
+
+  if (Array.isArray(path)) {
+    return arrayToRegexp( /** @type {!Array} */path, keys, options);
+  }
+
+  return stringToRegexp( /** @type {string} */path, keys, options);
+}
 
 /***/ })
 
