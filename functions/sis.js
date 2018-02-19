@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 227);
+/******/ 	return __webpack_require__(__webpack_require__.s = 233);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -81,12 +81,12 @@ module.exports = require("stream");
 
 // Load modules
 
-const Assert = __webpack_require__(228);
-const Crypto = __webpack_require__(12);
-const Path = __webpack_require__(15);
+const Assert = __webpack_require__(234);
+const Crypto = __webpack_require__(13);
+const Path = __webpack_require__(17);
 const Util = __webpack_require__(5);
 
-const Escape = __webpack_require__(229);
+const Escape = __webpack_require__(235);
 
 
 // Declare internals
@@ -1058,7 +1058,7 @@ module.exports = require("util");
 
 const Hoek = __webpack_require__(4);
 const Ref = __webpack_require__(8);
-const Errors = __webpack_require__(38);
+const Errors = __webpack_require__(40);
 let Alternatives = null;                // Delay-loaded to prevent circular dependencies
 let Cast = null;
 
@@ -1066,7 +1066,7 @@ let Cast = null;
 // Declare internals
 
 const internals = {
-    Set: __webpack_require__(157)
+    Set: __webpack_require__(160)
 };
 
 
@@ -1090,7 +1090,7 @@ module.exports = internals.Any = class {
 
     constructor() {
 
-        Cast = Cast || __webpack_require__(18);
+        Cast = Cast || __webpack_require__(22);
 
         this.isJoi = true;
         this._type = 'any';
@@ -1144,7 +1144,7 @@ module.exports = internals.Any = class {
 
     checkOptions(options) {
 
-        const Schemas = __webpack_require__(231);
+        const Schemas = __webpack_require__(237);
         const result = Schemas.options.validate(options);
         if (result.error) {
             throw new Error(result.error.details[0].message);
@@ -1448,7 +1448,7 @@ module.exports = internals.Any = class {
         const then = options.hasOwnProperty('then') ? this.concat(Cast.schema(this._currentJoi, options.then)) : undefined;
         const otherwise = options.hasOwnProperty('otherwise') ? this.concat(Cast.schema(this._currentJoi, options.otherwise)) : undefined;
 
-        Alternatives = Alternatives || __webpack_require__(158);
+        Alternatives = Alternatives || __webpack_require__(161);
 
         const alternativeOptions = { then, otherwise };
         if (Object.prototype.hasOwnProperty.call(options, 'is')) {
@@ -2029,154 +2029,7 @@ exports.push = function (array, ref) {
 /***/ }),
 /* 9 */,
 /* 10 */,
-/* 11 */,
-/* 12 */
-/***/ (function(module, exports) {
-
-module.exports = require("crypto");
-
-/***/ }),
-/* 13 */,
-/* 14 */,
-/* 15 */
-/***/ (function(module, exports) {
-
-module.exports = require("path");
-
-/***/ }),
-/* 16 */,
-/* 17 */,
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// Load modules
-
-const Hoek = __webpack_require__(4);
-const Ref = __webpack_require__(8);
-
-// Type modules are delay-loaded to prevent circular dependencies
-
-
-// Declare internals
-
-const internals = {};
-
-
-exports.schema = function (Joi, config) {
-
-    if (config !== undefined && config !== null && typeof config === 'object') {
-
-        if (config.isJoi) {
-            return config;
-        }
-
-        if (Array.isArray(config)) {
-            return Joi.alternatives().try(config);
-        }
-
-        if (config instanceof RegExp) {
-            return Joi.string().regex(config);
-        }
-
-        if (config instanceof Date) {
-            return Joi.date().valid(config);
-        }
-
-        return Joi.object().keys(config);
-    }
-
-    if (typeof config === 'string') {
-        return Joi.string().valid(config);
-    }
-
-    if (typeof config === 'number') {
-        return Joi.number().valid(config);
-    }
-
-    if (typeof config === 'boolean') {
-        return Joi.boolean().valid(config);
-    }
-
-    if (Ref.isRef(config)) {
-        return Joi.valid(config);
-    }
-
-    Hoek.assert(config === null, 'Invalid schema content:', config);
-
-    return Joi.valid(null);
-};
-
-
-exports.ref = function (id) {
-
-    return Ref.isRef(id) ? id : Ref.create(id);
-};
-
-
-/***/ }),
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(253).default;
-module.exports.default = module.exports;
-
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports) {
-
-module.exports = require("buffer");
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports) {
-
-var JsonWebTokenError = function (message, error) {
-  Error.call(this, message);
-  if(Error.captureStackTrace) {
-    Error.captureStackTrace(this, this.constructor);
-  }
-  this.name = 'JsonWebTokenError';
-  this.message = message;
-  if (error) this.inner = error;
-};
-
-JsonWebTokenError.prototype = Object.create(Error.prototype);
-JsonWebTokenError.prototype.constructor = JsonWebTokenError;
-
-module.exports = JsonWebTokenError;
-
-
-/***/ }),
-/* 26 */,
-/* 27 */,
-/* 28 */
-/***/ (function(module, exports) {
-
-module.exports = require("net");
-
-/***/ }),
-/* 29 */,
-/* 30 */,
-/* 31 */,
-/* 32 */,
-/* 33 */,
-/* 34 */,
-/* 35 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-/* 36 */,
-/* 37 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2186,24 +2039,24 @@ module.exports = require("fs");
 
 const Hoek = __webpack_require__(4);
 const Any = __webpack_require__(7);
-const Cast = __webpack_require__(18);
-const Errors = __webpack_require__(38);
-const Lazy = __webpack_require__(232);
+const Cast = __webpack_require__(22);
+const Errors = __webpack_require__(40);
+const Lazy = __webpack_require__(238);
 const Ref = __webpack_require__(8);
 
 
 // Declare internals
 
 const internals = {
-    alternatives: __webpack_require__(158),
-    array: __webpack_require__(233),
-    boolean: __webpack_require__(234),
-    binary: __webpack_require__(235),
-    date: __webpack_require__(159),
-    func: __webpack_require__(236),
-    number: __webpack_require__(238),
-    object: __webpack_require__(160),
-    string: __webpack_require__(239)
+    alternatives: __webpack_require__(161),
+    array: __webpack_require__(239),
+    boolean: __webpack_require__(240),
+    binary: __webpack_require__(241),
+    date: __webpack_require__(162),
+    func: __webpack_require__(242),
+    number: __webpack_require__(244),
+    object: __webpack_require__(163),
+    string: __webpack_require__(245)
 };
 
 internals.applyDefaults = function (schema) {
@@ -2606,7 +2459,7 @@ internals.root = function () {
 
     root.extensionsSchema = internals.array.items([internals.object, internals.func.arity(1)]).strict();
 
-    root.version = __webpack_require__(244).version;
+    root.version = __webpack_require__(250).version;
 
     return root;
 };
@@ -2616,7 +2469,42 @@ module.exports = internals.root();
 
 
 /***/ }),
-/* 38 */
+/* 12 */,
+/* 13 */
+/***/ (function(module, exports) {
+
+module.exports = require("crypto");
+
+/***/ }),
+/* 14 */,
+/* 15 */,
+/* 16 */
+/***/ (function(module, exports) {
+
+module.exports = require("http");
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
+
+/***/ }),
+/* 18 */,
+/* 19 */
+/***/ (function(module, exports) {
+
+module.exports = require("url");
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports) {
+
+module.exports = require("querystring");
+
+/***/ }),
+/* 21 */,
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2625,7 +2513,197 @@ module.exports = internals.root();
 // Load modules
 
 const Hoek = __webpack_require__(4);
-const Language = __webpack_require__(230);
+const Ref = __webpack_require__(8);
+
+// Type modules are delay-loaded to prevent circular dependencies
+
+
+// Declare internals
+
+const internals = {};
+
+
+exports.schema = function (Joi, config) {
+
+    if (config !== undefined && config !== null && typeof config === 'object') {
+
+        if (config.isJoi) {
+            return config;
+        }
+
+        if (Array.isArray(config)) {
+            return Joi.alternatives().try(config);
+        }
+
+        if (config instanceof RegExp) {
+            return Joi.string().regex(config);
+        }
+
+        if (config instanceof Date) {
+            return Joi.date().valid(config);
+        }
+
+        return Joi.object().keys(config);
+    }
+
+    if (typeof config === 'string') {
+        return Joi.string().valid(config);
+    }
+
+    if (typeof config === 'number') {
+        return Joi.number().valid(config);
+    }
+
+    if (typeof config === 'boolean') {
+        return Joi.boolean().valid(config);
+    }
+
+    if (Ref.isRef(config)) {
+        return Joi.valid(config);
+    }
+
+    Hoek.assert(config === null, 'Invalid schema content:', config);
+
+    return Joi.valid(null);
+};
+
+
+exports.ref = function (id) {
+
+    return Ref.isRef(id) ? id : Ref.create(id);
+};
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var remote = __webpack_require__(165);
+
+var pp = __webpack_require__(253);
+var PRIVATE_KEY = '-----BEGIN RSA PRIVATE KEY-----\nMIICXAIBAAKBgGklWf9rF9g2RlcgLxXFc/DnIcPpVWnbYTZdbVX58LjAXihHjC/W\nXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVbo4ypQyWqip5Ue1YHnUkqu6UB\nYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhnwX5zXGPXO4AvPixpAgMBAAEC\ngYBcVO54+sQPm2mdbKesSJ4NeAoQjb/xmzH8mYI/s6INuu90E5ApGecVxwUoS9fS\npYuLWrD23LevZ7mqs9Zh2tdq3z9kQoQ8obSdWpU7WpOGjzCEWrRJbx2pXT5NxZ67\noKbWI3A3DGMlGKwX9V9bVrZM42S8eWA++vZ+R1hLDFslAQJBAMquK3hM0jtNzhrM\nJJZcITMPWIwAzdRk3OhXf1iEb9xj0PwzfA0aN0o2sxGVS0WQJKjnU8EufMoKTRGu\nXfKfJ5ECQQCEzpHMT+iIMqTVBzt54866xrPMIFvxSUsIKv5M1St8eAU+ryIwCz2u\nZIfvAb62RNKYg4gvMkEWwFbRsVCDmztZAkEAkZJ9OF981AlzEj4zvScY1VKdV5kw\nPO/g1qQZnBsrONEchjf4TnTY513YSbXAJYt9OS9FMchQ6tBxQFTLt3pmcQJAV6XM\n6z5BhMGHr2AajJMgOHwy5SDmDRQGBNn7AtIc5QSA0aHbukFw78tBOye3qas6IZWN\nJzjPZCiEI9gV/wVP4QJBALW2f9YgwjnAPSlpHm7XOxux+Ck4OUmLztCsJPB9Iuog\ncVbO7SxVR1z5YtDdxY0UI9BTX+0MXbDWIouH4kET3HI=\n-----END RSA PRIVATE KEY-----';
+var PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----\nMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGklWf9rF9g2RlcgLxXFc/DnIcPp\nVWnbYTZdbVX58LjAXihHjC/WXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVb\no4ypQyWqip5Ue1YHnUkqu6UBYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhn\nwX5zXGPXO4AvPixpAgMBAAE=\n-----END PUBLIC KEY-----';
+var config = {
+  ISS: "https://securetoken.google.com/spaceishare-195201",
+  TOKEN_EXPIERY_LENGTH: 1 * 60 * 60 * 1000,
+  MAX_AUTHOR_IMAGE: 1,
+  MAX_LISTIG_IMAGE: 4,
+  WEB_TOKEN_EXPIERY: {
+    web: '1h',
+    user: '1h',
+    admin: '1h'
+  },
+  JTW_TOKEN: {
+    web: 0,
+    user: 1,
+    admin: 2
+  },
+  PRIVATE_KEY: PRIVATE_KEY,
+  PUBLIC_KEY: PUBLIC_KEY,
+  GOOGLE_KEYS: __webpack_require__(254),
+  GET_GOOGLE_KEYS: function GET_GOOGLE_KEYS() {
+
+    remote('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com').get(function (err, res, body) {
+      console.log(res.statusCode); // 200
+      console.log(body); // {"name": "Bob", "key": "value"}
+      config.GOOGLE_KEYS = body;
+    });
+  }
+};
+
+for (var a in pp) {
+  config[a] = pp[a];
+}
+for (var b in config) {
+  if (process.env[b]) {
+    config[b] = process.env[b];
+  }
+}
+var cbs = [];
+function clearcbs() {
+  for (var a in cbs) {
+    cbs.pop(null, config.GOOGLE_KEYS);
+  }
+}
+
+module.exports = config;
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+module.exports = require("https");
+
+/***/ }),
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(257).default;
+module.exports.default = module.exports;
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports) {
+
+module.exports = require("buffer");
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports) {
+
+var JsonWebTokenError = function (message, error) {
+  Error.call(this, message);
+  if(Error.captureStackTrace) {
+    Error.captureStackTrace(this, this.constructor);
+  }
+  this.name = 'JsonWebTokenError';
+  this.message = message;
+  if (error) this.inner = error;
+};
+
+JsonWebTokenError.prototype = Object.create(Error.prototype);
+JsonWebTokenError.prototype.constructor = JsonWebTokenError;
+
+module.exports = JsonWebTokenError;
+
+
+/***/ }),
+/* 31 */,
+/* 32 */,
+/* 33 */
+/***/ (function(module, exports) {
+
+module.exports = require("net");
+
+/***/ }),
+/* 34 */,
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 39 */,
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// Load modules
+
+const Hoek = __webpack_require__(4);
+const Language = __webpack_require__(236);
 
 
 // Declare internals
@@ -2986,7 +3064,446 @@ internals.annotate = function (stripColorCodes) {
 
 
 /***/ }),
-/* 39 */
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// Load modules
+
+const Hoek = __webpack_require__(4);
+
+
+// Declare internals
+
+const internals = {
+    codes: new Map([
+        [100, 'Continue'],
+        [101, 'Switching Protocols'],
+        [102, 'Processing'],
+        [200, 'OK'],
+        [201, 'Created'],
+        [202, 'Accepted'],
+        [203, 'Non-Authoritative Information'],
+        [204, 'No Content'],
+        [205, 'Reset Content'],
+        [206, 'Partial Content'],
+        [207, 'Multi-Status'],
+        [300, 'Multiple Choices'],
+        [301, 'Moved Permanently'],
+        [302, 'Moved Temporarily'],
+        [303, 'See Other'],
+        [304, 'Not Modified'],
+        [305, 'Use Proxy'],
+        [307, 'Temporary Redirect'],
+        [400, 'Bad Request'],
+        [401, 'Unauthorized'],
+        [402, 'Payment Required'],
+        [403, 'Forbidden'],
+        [404, 'Not Found'],
+        [405, 'Method Not Allowed'],
+        [406, 'Not Acceptable'],
+        [407, 'Proxy Authentication Required'],
+        [408, 'Request Time-out'],
+        [409, 'Conflict'],
+        [410, 'Gone'],
+        [411, 'Length Required'],
+        [412, 'Precondition Failed'],
+        [413, 'Request Entity Too Large'],
+        [414, 'Request-URI Too Large'],
+        [415, 'Unsupported Media Type'],
+        [416, 'Requested Range Not Satisfiable'],
+        [417, 'Expectation Failed'],
+        [418, 'I\'m a teapot'],
+        [422, 'Unprocessable Entity'],
+        [423, 'Locked'],
+        [424, 'Failed Dependency'],
+        [425, 'Unordered Collection'],
+        [426, 'Upgrade Required'],
+        [428, 'Precondition Required'],
+        [429, 'Too Many Requests'],
+        [431, 'Request Header Fields Too Large'],
+        [451, 'Unavailable For Legal Reasons'],
+        [500, 'Internal Server Error'],
+        [501, 'Not Implemented'],
+        [502, 'Bad Gateway'],
+        [503, 'Service Unavailable'],
+        [504, 'Gateway Time-out'],
+        [505, 'HTTP Version Not Supported'],
+        [506, 'Variant Also Negotiates'],
+        [507, 'Insufficient Storage'],
+        [509, 'Bandwidth Limit Exceeded'],
+        [510, 'Not Extended'],
+        [511, 'Network Authentication Required']
+    ])
+};
+
+
+module.exports = internals.Boom = class extends Error {
+
+    static [Symbol.hasInstance](instance) {
+
+        return internals.Boom.isBoom(instance);
+    }
+
+    constructor(message, options = {}) {
+
+        if (message instanceof Error) {
+            return internals.Boom.boomify(Hoek.clone(message), options);
+        }
+
+        const { statusCode = 500, data = null, ctor = internals.Boom } = options;
+        const error = new Error(message ? message : undefined);         // Avoids settings null message
+        Error.captureStackTrace(error, ctor);                           // Filter the stack to our external API
+        error.data = data;
+        internals.initialize(error, statusCode);
+        error.typeof = ctor;
+
+        if (options.decorate) {
+            Object.assign(error, options.decorate);
+        }
+
+        return error;
+    }
+
+    static isBoom(err) {
+
+        return (err instanceof Error && !!err.isBoom);
+    }
+
+    static boomify(err, options) {
+
+        Hoek.assert(err instanceof Error, 'Cannot wrap non-Error object');
+
+        options = options || {};
+
+        if (options.data !== undefined) {
+            err.data = options.data;
+        }
+
+        if (options.decorate) {
+            Object.assign(err, options.decorate);
+        }
+
+        if (!err.isBoom) {
+            return internals.initialize(err, options.statusCode || 500, options.message);
+        }
+
+        if (options.override === false ||                           // Defaults to true
+            (!options.statusCode && !options.message)) {
+
+            return err;
+        }
+
+        return internals.initialize(err, options.statusCode || err.output.statusCode, options.message);
+    }
+
+    // 4xx Client Errors
+
+    static badRequest(message, data) {
+
+        return new internals.Boom(message, { statusCode: 400, data, ctor: internals.Boom.badRequest });
+    }
+
+    static unauthorized(message, scheme, attributes) {          // Or function (message, wwwAuthenticate[])
+
+        const err = new internals.Boom(message, { statusCode: 401, ctor: internals.Boom.unauthorized });
+
+        if (!scheme) {
+            return err;
+        }
+
+        let wwwAuthenticate = '';
+
+        if (typeof scheme === 'string') {
+
+            // function (message, scheme, attributes)
+
+            wwwAuthenticate = scheme;
+
+            if (attributes || message) {
+                err.output.payload.attributes = {};
+            }
+
+            if (attributes) {
+                if (typeof attributes === 'string') {
+                    wwwAuthenticate = wwwAuthenticate + ' ' + Hoek.escapeHeaderAttribute(attributes);
+                    err.output.payload.attributes = attributes;
+                }
+                else {
+                    const names = Object.keys(attributes);
+                    for (let i = 0; i < names.length; ++i) {
+                        const name = names[i];
+                        if (i) {
+                            wwwAuthenticate = wwwAuthenticate + ',';
+                        }
+
+                        let value = attributes[name];
+                        if (value === null ||
+                            value === undefined) {              // Value can be zero
+
+                            value = '';
+                        }
+                        wwwAuthenticate = wwwAuthenticate + ' ' + name + '="' + Hoek.escapeHeaderAttribute(value.toString()) + '"';
+                        err.output.payload.attributes[name] = value;
+                    }
+                }
+            }
+
+
+            if (message) {
+                if (attributes) {
+                    wwwAuthenticate = wwwAuthenticate + ',';
+                }
+                wwwAuthenticate = wwwAuthenticate + ' error="' + Hoek.escapeHeaderAttribute(message) + '"';
+                err.output.payload.attributes.error = message;
+            }
+            else {
+                err.isMissing = true;
+            }
+        }
+        else {
+
+            // function (message, wwwAuthenticate[])
+
+            const wwwArray = scheme;
+            for (let i = 0; i < wwwArray.length; ++i) {
+                if (i) {
+                    wwwAuthenticate = wwwAuthenticate + ', ';
+                }
+
+                wwwAuthenticate = wwwAuthenticate + wwwArray[i];
+            }
+        }
+
+        err.output.headers['WWW-Authenticate'] = wwwAuthenticate;
+
+        return err;
+    }
+
+    static paymentRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 402, data, ctor: internals.Boom.paymentRequired });
+    }
+
+    static forbidden(message, data) {
+
+        return new internals.Boom(message, { statusCode: 403, data, ctor: internals.Boom.forbidden });
+    }
+
+    static notFound(message, data) {
+
+        return new internals.Boom(message, { statusCode: 404, data, ctor: internals.Boom.notFound });
+    }
+
+    static methodNotAllowed(message, data, allow) {
+
+        const err = new internals.Boom(message, { statusCode: 405, data, ctor: internals.Boom.methodNotAllowed });
+
+        if (typeof allow === 'string') {
+            allow = [allow];
+        }
+
+        if (Array.isArray(allow)) {
+            err.output.headers.Allow = allow.join(', ');
+        }
+
+        return err;
+    }
+
+    static notAcceptable(message, data) {
+
+        return new internals.Boom(message, { statusCode: 406, data, ctor: internals.Boom.notAcceptable });
+    }
+
+    static proxyAuthRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 407, data, ctor: internals.Boom.proxyAuthRequired });
+    }
+
+    static clientTimeout(message, data) {
+
+        return new internals.Boom(message, { statusCode: 408, data, ctor: internals.Boom.clientTimeout });
+    }
+
+    static conflict(message, data) {
+
+        return new internals.Boom(message, { statusCode: 409, data, ctor: internals.Boom.conflict });
+    }
+
+    static resourceGone(message, data) {
+
+        return new internals.Boom(message, { statusCode: 410, data, ctor: internals.Boom.resourceGone });
+    }
+
+    static lengthRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 411, data, ctor: internals.Boom.lengthRequired });
+    }
+
+    static preconditionFailed(message, data) {
+
+        return new internals.Boom(message, { statusCode: 412, data, ctor: internals.Boom.preconditionFailed });
+    }
+
+    static entityTooLarge(message, data) {
+
+        return new internals.Boom(message, { statusCode: 413, data, ctor: internals.Boom.entityTooLarge });
+    }
+
+    static uriTooLong(message, data) {
+
+        return new internals.Boom(message, { statusCode: 414, data, ctor: internals.Boom.uriTooLong });
+    }
+
+    static unsupportedMediaType(message, data) {
+
+        return new internals.Boom(message, { statusCode: 415, data, ctor: internals.Boom.unsupportedMediaType });
+    }
+
+    static rangeNotSatisfiable(message, data) {
+
+        return new internals.Boom(message, { statusCode: 416, data, ctor: internals.Boom.rangeNotSatisfiable });
+    }
+
+    static expectationFailed(message, data) {
+
+        return new internals.Boom(message, { statusCode: 417, data, ctor: internals.Boom.expectationFailed });
+    }
+
+    static teapot(message, data) {
+
+        return new internals.Boom(message, { statusCode: 418, data, ctor: internals.Boom.teapot });
+    }
+
+    static badData(message, data) {
+
+        return new internals.Boom(message, { statusCode: 422, data, ctor: internals.Boom.badData });
+    }
+
+    static locked(message, data) {
+
+        return new internals.Boom(message, { statusCode: 423, data, ctor: internals.Boom.locked });
+    }
+
+    static preconditionRequired(message, data) {
+
+        return new internals.Boom(message, { statusCode: 428, data, ctor: internals.Boom.preconditionRequired });
+    }
+
+    static tooManyRequests(message, data) {
+
+        return new internals.Boom(message, { statusCode: 429, data, ctor: internals.Boom.tooManyRequests });
+    }
+
+    static illegal(message, data) {
+
+        return new internals.Boom(message, { statusCode: 451, data, ctor: internals.Boom.illegal });
+    }
+
+    // 5xx Server Errors
+
+    static internal(message, data, statusCode = 500) {
+
+        return internals.serverError(message, data, statusCode, internals.Boom.internal);
+    }
+
+    static notImplemented(message, data) {
+
+        return internals.serverError(message, data, 501, internals.Boom.notImplemented);
+    }
+
+    static badGateway(message, data) {
+
+        return internals.serverError(message, data, 502, internals.Boom.badGateway);
+    }
+
+    static serverUnavailable(message, data) {
+
+        return internals.serverError(message, data, 503, internals.Boom.serverUnavailable);
+    }
+
+    static gatewayTimeout(message, data) {
+
+        return internals.serverError(message, data, 504, internals.Boom.gatewayTimeout);
+    }
+
+    static badImplementation(message, data) {
+
+        const err = internals.serverError(message, data, 500, internals.Boom.badImplementation);
+        err.isDeveloperError = true;
+        return err;
+    }
+};
+
+
+
+internals.initialize = function (err, statusCode, message) {
+
+    const numberCode = parseInt(statusCode, 10);
+    Hoek.assert(!isNaN(numberCode) && numberCode >= 400, 'First argument must be a number (400+):', statusCode);
+
+    err.isBoom = true;
+    err.isServer = numberCode >= 500;
+
+    if (!err.hasOwnProperty('data')) {
+        err.data = null;
+    }
+
+    err.output = {
+        statusCode: numberCode,
+        payload: {},
+        headers: {}
+    };
+
+    err.reformat = internals.reformat;
+
+    if (!message &&
+        !err.message) {
+
+        err.reformat();
+        message = err.output.payload.error;
+    }
+
+    if (message) {
+        err.message = (message + (err.message ? ': ' + err.message : ''));
+        err.output.payload.message = err.message;
+    }
+
+    err.reformat();
+    return err;
+};
+
+
+internals.reformat = function () {
+
+    this.output.payload.statusCode = this.output.statusCode;
+    this.output.payload.error = internals.codes.get(this.output.statusCode) || 'Unknown';
+
+    if (this.output.statusCode === 500) {
+        this.output.payload.message = 'An internal server error occurred';              // Hide actual error from user
+    }
+    else if (this.message) {
+        this.output.payload.message = this.message;
+    }
+};
+
+
+internals.serverError = function (message, data, statusCode, ctor) {
+
+    if (data instanceof Error &&
+        !data.isBoom) {
+
+        return internals.Boom.boomify(data, { statusCode, message });
+    }
+
+    return new internals.Boom(message, { statusCode, data, ctor });
+};
+
+
+/***/ }),
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2995,23 +3512,29 @@ internals.annotate = function (stripColorCodes) {
 function lamdaResponse(json) {
     if (json && json.isBoom) {
         return { statusCode: json.output.statusCode,
-            headers: { "content-type": "application/json" },
+            headers: { "content-type": "application/json",
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'content-type',
+                'Access-Control-Allow-Methods': 'OPTIONS,GET,POST' },
             body: JSON.stringify(json.output.payload) };
     } else {
         return { statusCode: 200,
-            headers: { "content-type": "application/json" },
+            headers: { "content-type": "application/json",
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'content-type',
+                'Access-Control-Allow-Methods': 'OPTIONS,GET,POST' },
             body: JSON.stringify(json) };
     }
 }
 module.exports = lamdaResponse;
 
 /***/ }),
-/* 40 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*global exports*/
-var SignStream = __webpack_require__(252);
-var VerifyStream = __webpack_require__(258);
+var SignStream = __webpack_require__(256);
+var VerifyStream = __webpack_require__(262);
 
 var ALGORITHMS = [
   'HS256', 'HS384', 'HS512',
@@ -3033,11 +3556,11 @@ exports.createVerify = function createVerify(opts) {
 
 
 /***/ }),
-/* 41 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
-var buffer = __webpack_require__(24)
+var buffer = __webpack_require__(29)
 var Buffer = buffer.Buffer
 
 // alternative to using Object.keys for old browsers
@@ -3101,10 +3624,54 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var CONFIG = __webpack_require__(23);
+var Boom = __webpack_require__(41);
+var jwt = __webpack_require__(167);
+
+//var logger = require('./logger');
+
+function authorizedJWT(type, request, reply) {
+  logger.debug('authorizedJWT', JSON.stringify({ type: CONFIG.JTW_TOKEN[type], auth: request.auth }));
+  if (request.auth.isAuthenticated && request.auth.credentials.type >= CONFIG.JTW_TOKEN[type] && (request.params && request.params.province === request.auth.credentials.province && request.params.license === request.auth.credentials.license || request.auth.credentials.type === CONFIG.JTW_TOKEN.admin)) {
+    return true;
+  } else {
+    reply(Boom.unauthorized());
+    return false;
+  }
+}
+function validateJWT(token) {
+  console.log('validateJWT', token);
+  try {
+    var notverified = jwt.decode(token, { complete: true });
+    var kid = notverified.header.kid;
+    CONFIG.GOOGLE_KEYS[kid];
+    //console.log('-----------notverified',notverified)
+    var decoded = jwt.verify(token, CONFIG.GOOGLE_KEYS[kid]);
+    return decoded;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+}
+function firebaseTokenValidate(idToken, cb) {
+  admin.auth().verifyIdToken(idToken).then(function (decodedToken) {
+    var uid = decodedToken.uid;
+    cb(null, decodedToken);
+    // ...
+  }).catch(function (error) {
+    // Handle error
+    cb(error);
+  });
+}
+module.exports = validateJWT;
+
+/***/ }),
 /* 46 */,
 /* 47 */,
 /* 48 */,
@@ -3216,7 +3783,10 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 /* 154 */,
 /* 155 */,
 /* 156 */,
-/* 157 */
+/* 157 */,
+/* 158 */,
+/* 159 */,
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3334,7 +3904,7 @@ module.exports = class Set {
 
 
 /***/ }),
-/* 158 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3344,7 +3914,7 @@ module.exports = class Set {
 
 const Hoek = __webpack_require__(4);
 const Any = __webpack_require__(7);
-const Cast = __webpack_require__(18);
+const Cast = __webpack_require__(22);
 const Ref = __webpack_require__(8);
 
 
@@ -3529,7 +4099,7 @@ module.exports = new internals.Alternatives();
 
 
 /***/ }),
-/* 159 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3711,7 +4281,7 @@ module.exports = new internals.Date();
 
 
 /***/ }),
-/* 160 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3720,10 +4290,10 @@ module.exports = new internals.Date();
 // Load modules
 
 const Hoek = __webpack_require__(4);
-const Topo = __webpack_require__(237);
+const Topo = __webpack_require__(243);
 const Any = __webpack_require__(7);
-const Errors = __webpack_require__(38);
-const Cast = __webpack_require__(18);
+const Errors = __webpack_require__(40);
+const Cast = __webpack_require__(22);
 
 
 // Declare internals
@@ -4616,7 +5186,7 @@ module.exports = new internals.Object();
 
 
 /***/ }),
-/* 161 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4832,449 +5402,250 @@ module.exports = internals.rfc3986;
 
 
 /***/ }),
-/* 162 */
+/* 165 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*jslint browser: false*/
+
+
+const url = __webpack_require__(19);
+
+
+// ============================================================================
+// Helpers
+
+// Returns a copy of the object
+function copy(object, dest) {
+    return Object.keys(object).reduce(function (o, key) {
+        o[key] = object[key];
+        return o;
+    }, dest || {});
+}
+
+
+// Content types we parse as JSON
+const contentTypes = {
+    'application/json': true
+};
+
+
+// Checks if the given content type is one we accept
+// Note: NodeJS makes HTTP headers lower case by default
+function inContentTypes(type) {
+    type += '';
+    return Object.keys(contentTypes).some(function (ct) {
+        return type.includes(ct) && contentTypes[ct];
+    });
+}
+
+
+// Returns HTTP response callback
+const response = (function () {
+    const CT = 'content-type';
+
+    function data(d) {
+        if (undefined === this.body) {
+            this.body = '';
+        }
+        this.body += d;
+    }
+
+    function end(callback, res) {
+        try {
+            // Parse accepted content types as JSON
+            if (!inContentTypes(res.headers[CT])) {
+                throw new Error('Content type \"'
+                        + res.headers[CT]
+                        + '\" failed the check against '
+                        + JSON.stringify(contentTypes));
+            }
+
+            callback(null, res, JSON.parse(this.body));
+
+        } catch (err) {
+            return callback(err, res, this.body);
+        }
+
+    }
+
+    return function (callback, res) {
+        const o = {
+            body: undefined
+        };
+
+        res.setEncoding('utf8')
+            .on('data', data.bind(o))
+            .on('end', end.bind(o, callback, res));
+    };
+}());
+
+
+// Returns a HTTP method
+function method(opt, path, data, callback) {
+    // Check permutation of arguments
+    if ('function' === typeof path) {
+        callback = path;
+        path = undefined;
+        data = undefined;
+    } else if ('function' === typeof data) {
+        callback = data;
+        if ('string' === typeof path) {
+            data = undefined;
+        } else {
+            data = path;
+            path = undefined;
+        }
+    }
+
+    // Add path if any
+    if (path) {
+        opt = copy(opt);
+        opt.path += path;
+    }
+
+    const res = response.bind(this, callback);
+    const req = this.http.request(opt, res);
+
+    req.on('error', callback);
+
+    if ('object' === typeof data && data !== null) {
+        req.write(JSON.stringify(data));
+    }
+
+    req.end();
+}
+
+// ============================================================================
+//
+
+function Remote(uri, opt) {
+    const parsed = url.parse(uri);
+    opt = copy({
+        host: parsed.host,
+        path: parsed.path
+    }, opt);
+    opt.headers = opt.headers || {};
+    opt.headers['Content-Type'] = 'application/json';
+
+    switch (parsed.protocol) {
+    case 'https:':
+        if (!module.exports.https) {
+            module.exports.https = __webpack_require__(24);
+        }
+        this.http = module.exports.https;
+        break;
+    case 'http:':
+        if (!module.exports.http) {
+            module.exports.http = __webpack_require__(16);
+        }
+        this.http = module.exports.http;
+        break;
+    default:
+        throw new Error('Not supported protocol: ' + parsed.protocol);
+    }
+
+    // Constructors of HTTP methods
+    this.post = method.bind(this, copy(opt, {method: 'POST'}));
+    this.get = method.bind(this, copy(opt, {method: 'GET'}));
+    this.put = method.bind(this, copy(opt, {method: 'PUT'}));
+    this.del = method.bind(this, copy(opt, {method: 'DELETE'}));
+    this.patch = method.bind(this, copy(opt, {method: 'PATCH'}));
+}
+
+// ============================================================================
+// Module exports
+module.exports = function (uri, opt) {
+    return new Remote(uri, opt);
+};
+
+module.exports.contentTypes = contentTypes;
+
+
+/***/ }),
+/* 166 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-// Load modules
+var lamdaResponse = __webpack_require__(42);
+var getJWTToken = __webpack_require__(255);
+var Joi = __webpack_require__(11);
+var joiGetDate = __webpack_require__(176);
 
-const Hoek = __webpack_require__(4);
-
-
-// Declare internals
-
-const internals = {
-    codes: new Map([
-        [100, 'Continue'],
-        [101, 'Switching Protocols'],
-        [102, 'Processing'],
-        [200, 'OK'],
-        [201, 'Created'],
-        [202, 'Accepted'],
-        [203, 'Non-Authoritative Information'],
-        [204, 'No Content'],
-        [205, 'Reset Content'],
-        [206, 'Partial Content'],
-        [207, 'Multi-Status'],
-        [300, 'Multiple Choices'],
-        [301, 'Moved Permanently'],
-        [302, 'Moved Temporarily'],
-        [303, 'See Other'],
-        [304, 'Not Modified'],
-        [305, 'Use Proxy'],
-        [307, 'Temporary Redirect'],
-        [400, 'Bad Request'],
-        [401, 'Unauthorized'],
-        [402, 'Payment Required'],
-        [403, 'Forbidden'],
-        [404, 'Not Found'],
-        [405, 'Method Not Allowed'],
-        [406, 'Not Acceptable'],
-        [407, 'Proxy Authentication Required'],
-        [408, 'Request Time-out'],
-        [409, 'Conflict'],
-        [410, 'Gone'],
-        [411, 'Length Required'],
-        [412, 'Precondition Failed'],
-        [413, 'Request Entity Too Large'],
-        [414, 'Request-URI Too Large'],
-        [415, 'Unsupported Media Type'],
-        [416, 'Requested Range Not Satisfiable'],
-        [417, 'Expectation Failed'],
-        [418, 'I\'m a teapot'],
-        [422, 'Unprocessable Entity'],
-        [423, 'Locked'],
-        [424, 'Failed Dependency'],
-        [425, 'Unordered Collection'],
-        [426, 'Upgrade Required'],
-        [428, 'Precondition Required'],
-        [429, 'Too Many Requests'],
-        [431, 'Request Header Fields Too Large'],
-        [451, 'Unavailable For Legal Reasons'],
-        [500, 'Internal Server Error'],
-        [501, 'Not Implemented'],
-        [502, 'Bad Gateway'],
-        [503, 'Service Unavailable'],
-        [504, 'Gateway Time-out'],
-        [505, 'HTTP Version Not Supported'],
-        [506, 'Variant Also Negotiates'],
-        [507, 'Insufficient Storage'],
-        [509, 'Bandwidth Limit Exceeded'],
-        [510, 'Not Extended'],
-        [511, 'Network Authentication Required']
-    ])
+exports.add = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people create", event: event, context: context }));
+};
+exports.update = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people update", event: event, context: context }));
+};
+exports.updateImage = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people update Image", event: event, context: context }));
+};
+exports.getImage = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people get Image", event: event, context: context }));
+};
+exports.getById = function (event, context, callback) {
+    //should be different for public and owner
+    callback(null, lamdaResponse({ msg: "people getById", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
+};
+exports.getByIdPublic = function (event, context, callback) {
+    //should be different for public and owner
+    callback(null, lamdaResponse({ msg: "people getByIdPublic", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
+};
+exports.addSchema = {
+    created_at: joiGetDate.date().now(),
+    updated_at: joiGetDate.date().now(),
+    locale: Joi.string().valid("en", "fr").default('en'),
+    active: Joi.number().valid(0).default(0),
+    username: Joi.string(),
+    email: Joi.string().email(),
+    encrypted_password: Joi.string().min(8),
+    reset_password_token: Joi.string(),
+    given_name: Joi.string(),
+    family_name: Joi.string().required(),
+    phone_number: Joi.number().required(),
+    description: Joi.string(),
+    facebook_id: Joi.string(),
+    is_organization: Joi.boolean(),
+    organization_name: Joi.string()
+};
+exports.updateSchema = {
+    updated_at: joiGetDate.date().now(),
+    locale: Joi.string().valid("en", "fr"),
+    active: Joi.number().valid(0).default(0),
+    username: Joi.string(),
+    email: Joi.string().email(),
+    encrypted_password: Joi.string().min(8),
+    reset_password_token: Joi.string(),
+    given_name: Joi.string(),
+    family_name: Joi.string(),
+    description: Joi.string(),
+    facebook_id: Joi.string(),
+    is_organization: Joi.boolean(),
+    organization_name: Joi.string()
 };
 
-
-module.exports = internals.Boom = class extends Error {
-
-    static [Symbol.hasInstance](instance) {
-
-        return internals.Boom.isBoom(instance);
-    }
-
-    constructor(message, options = {}) {
-
-        if (message instanceof Error) {
-            return internals.Boom.boomify(Hoek.clone(message), options);
-        }
-
-        const { statusCode = 500, data = null, ctor = internals.Boom } = options;
-        const error = new Error(message ? message : undefined);         // Avoids settings null message
-        Error.captureStackTrace(error, ctor);                           // Filter the stack to our external API
-        error.data = data;
-        internals.initialize(error, statusCode);
-        error.typeof = ctor;
-
-        if (options.decorate) {
-            Object.assign(error, options.decorate);
-        }
-
-        return error;
-    }
-
-    static isBoom(err) {
-
-        return (err instanceof Error && !!err.isBoom);
-    }
-
-    static boomify(err, options) {
-
-        Hoek.assert(err instanceof Error, 'Cannot wrap non-Error object');
-
-        options = options || {};
-
-        if (options.data !== undefined) {
-            err.data = options.data;
-        }
-
-        if (options.decorate) {
-            Object.assign(err, options.decorate);
-        }
-
-        if (!err.isBoom) {
-            return internals.initialize(err, options.statusCode || 500, options.message);
-        }
-
-        if (options.override === false ||                           // Defaults to true
-            (!options.statusCode && !options.message)) {
-
-            return err;
-        }
-
-        return internals.initialize(err, options.statusCode || err.output.statusCode, options.message);
-    }
-
-    // 4xx Client Errors
-
-    static badRequest(message, data) {
-
-        return new internals.Boom(message, { statusCode: 400, data, ctor: internals.Boom.badRequest });
-    }
-
-    static unauthorized(message, scheme, attributes) {          // Or function (message, wwwAuthenticate[])
-
-        const err = new internals.Boom(message, { statusCode: 401, ctor: internals.Boom.unauthorized });
-
-        if (!scheme) {
-            return err;
-        }
-
-        let wwwAuthenticate = '';
-
-        if (typeof scheme === 'string') {
-
-            // function (message, scheme, attributes)
-
-            wwwAuthenticate = scheme;
-
-            if (attributes || message) {
-                err.output.payload.attributes = {};
-            }
-
-            if (attributes) {
-                if (typeof attributes === 'string') {
-                    wwwAuthenticate = wwwAuthenticate + ' ' + Hoek.escapeHeaderAttribute(attributes);
-                    err.output.payload.attributes = attributes;
-                }
-                else {
-                    const names = Object.keys(attributes);
-                    for (let i = 0; i < names.length; ++i) {
-                        const name = names[i];
-                        if (i) {
-                            wwwAuthenticate = wwwAuthenticate + ',';
-                        }
-
-                        let value = attributes[name];
-                        if (value === null ||
-                            value === undefined) {              // Value can be zero
-
-                            value = '';
-                        }
-                        wwwAuthenticate = wwwAuthenticate + ' ' + name + '="' + Hoek.escapeHeaderAttribute(value.toString()) + '"';
-                        err.output.payload.attributes[name] = value;
-                    }
-                }
-            }
-
-
-            if (message) {
-                if (attributes) {
-                    wwwAuthenticate = wwwAuthenticate + ',';
-                }
-                wwwAuthenticate = wwwAuthenticate + ' error="' + Hoek.escapeHeaderAttribute(message) + '"';
-                err.output.payload.attributes.error = message;
-            }
-            else {
-                err.isMissing = true;
-            }
-        }
-        else {
-
-            // function (message, wwwAuthenticate[])
-
-            const wwwArray = scheme;
-            for (let i = 0; i < wwwArray.length; ++i) {
-                if (i) {
-                    wwwAuthenticate = wwwAuthenticate + ', ';
-                }
-
-                wwwAuthenticate = wwwAuthenticate + wwwArray[i];
-            }
-        }
-
-        err.output.headers['WWW-Authenticate'] = wwwAuthenticate;
-
-        return err;
-    }
-
-    static paymentRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 402, data, ctor: internals.Boom.paymentRequired });
-    }
-
-    static forbidden(message, data) {
-
-        return new internals.Boom(message, { statusCode: 403, data, ctor: internals.Boom.forbidden });
-    }
-
-    static notFound(message, data) {
-
-        return new internals.Boom(message, { statusCode: 404, data, ctor: internals.Boom.notFound });
-    }
-
-    static methodNotAllowed(message, data, allow) {
-
-        const err = new internals.Boom(message, { statusCode: 405, data, ctor: internals.Boom.methodNotAllowed });
-
-        if (typeof allow === 'string') {
-            allow = [allow];
-        }
-
-        if (Array.isArray(allow)) {
-            err.output.headers.Allow = allow.join(', ');
-        }
-
-        return err;
-    }
-
-    static notAcceptable(message, data) {
-
-        return new internals.Boom(message, { statusCode: 406, data, ctor: internals.Boom.notAcceptable });
-    }
-
-    static proxyAuthRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 407, data, ctor: internals.Boom.proxyAuthRequired });
-    }
-
-    static clientTimeout(message, data) {
-
-        return new internals.Boom(message, { statusCode: 408, data, ctor: internals.Boom.clientTimeout });
-    }
-
-    static conflict(message, data) {
-
-        return new internals.Boom(message, { statusCode: 409, data, ctor: internals.Boom.conflict });
-    }
-
-    static resourceGone(message, data) {
-
-        return new internals.Boom(message, { statusCode: 410, data, ctor: internals.Boom.resourceGone });
-    }
-
-    static lengthRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 411, data, ctor: internals.Boom.lengthRequired });
-    }
-
-    static preconditionFailed(message, data) {
-
-        return new internals.Boom(message, { statusCode: 412, data, ctor: internals.Boom.preconditionFailed });
-    }
-
-    static entityTooLarge(message, data) {
-
-        return new internals.Boom(message, { statusCode: 413, data, ctor: internals.Boom.entityTooLarge });
-    }
-
-    static uriTooLong(message, data) {
-
-        return new internals.Boom(message, { statusCode: 414, data, ctor: internals.Boom.uriTooLong });
-    }
-
-    static unsupportedMediaType(message, data) {
-
-        return new internals.Boom(message, { statusCode: 415, data, ctor: internals.Boom.unsupportedMediaType });
-    }
-
-    static rangeNotSatisfiable(message, data) {
-
-        return new internals.Boom(message, { statusCode: 416, data, ctor: internals.Boom.rangeNotSatisfiable });
-    }
-
-    static expectationFailed(message, data) {
-
-        return new internals.Boom(message, { statusCode: 417, data, ctor: internals.Boom.expectationFailed });
-    }
-
-    static teapot(message, data) {
-
-        return new internals.Boom(message, { statusCode: 418, data, ctor: internals.Boom.teapot });
-    }
-
-    static badData(message, data) {
-
-        return new internals.Boom(message, { statusCode: 422, data, ctor: internals.Boom.badData });
-    }
-
-    static locked(message, data) {
-
-        return new internals.Boom(message, { statusCode: 423, data, ctor: internals.Boom.locked });
-    }
-
-    static preconditionRequired(message, data) {
-
-        return new internals.Boom(message, { statusCode: 428, data, ctor: internals.Boom.preconditionRequired });
-    }
-
-    static tooManyRequests(message, data) {
-
-        return new internals.Boom(message, { statusCode: 429, data, ctor: internals.Boom.tooManyRequests });
-    }
-
-    static illegal(message, data) {
-
-        return new internals.Boom(message, { statusCode: 451, data, ctor: internals.Boom.illegal });
-    }
-
-    // 5xx Server Errors
-
-    static internal(message, data, statusCode = 500) {
-
-        return internals.serverError(message, data, statusCode, internals.Boom.internal);
-    }
-
-    static notImplemented(message, data) {
-
-        return internals.serverError(message, data, 501, internals.Boom.notImplemented);
-    }
-
-    static badGateway(message, data) {
-
-        return internals.serverError(message, data, 502, internals.Boom.badGateway);
-    }
-
-    static serverUnavailable(message, data) {
-
-        return internals.serverError(message, data, 503, internals.Boom.serverUnavailable);
-    }
-
-    static gatewayTimeout(message, data) {
-
-        return internals.serverError(message, data, 504, internals.Boom.gatewayTimeout);
-    }
-
-    static badImplementation(message, data) {
-
-        const err = internals.serverError(message, data, 500, internals.Boom.badImplementation);
-        err.isDeveloperError = true;
-        return err;
-    }
-};
-
-
-
-internals.initialize = function (err, statusCode, message) {
-
-    const numberCode = parseInt(statusCode, 10);
-    Hoek.assert(!isNaN(numberCode) && numberCode >= 400, 'First argument must be a number (400+):', statusCode);
-
-    err.isBoom = true;
-    err.isServer = numberCode >= 500;
-
-    if (!err.hasOwnProperty('data')) {
-        err.data = null;
-    }
-
-    err.output = {
-        statusCode: numberCode,
-        payload: {},
-        headers: {}
-    };
-
-    err.reformat = internals.reformat;
-
-    if (!message &&
-        !err.message) {
-
-        err.reformat();
-        message = err.output.payload.error;
-    }
-
-    if (message) {
-        err.message = (message + (err.message ? ': ' + err.message : ''));
-        err.output.payload.message = err.message;
-    }
-
-    err.reformat();
-    return err;
-};
-
-
-internals.reformat = function () {
-
-    this.output.payload.statusCode = this.output.statusCode;
-    this.output.payload.error = internals.codes.get(this.output.statusCode) || 'Unknown';
-
-    if (this.output.statusCode === 500) {
-        this.output.payload.message = 'An internal server error occurred';              // Hide actual error from user
-    }
-    else if (this.message) {
-        this.output.payload.message = this.message;
-    }
-};
-
-
-internals.serverError = function (message, data, statusCode, ctor) {
-
-    if (data instanceof Error &&
-        !data.isBoom) {
-
-        return internals.Boom.boomify(data, { statusCode, message });
-    }
-
-    return new internals.Boom(message, { statusCode, data, ctor });
+/***/ }),
+/* 167 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+  decode: __webpack_require__(168),
+  verify: __webpack_require__(263),
+  sign: __webpack_require__(265),
+  JsonWebTokenError: __webpack_require__(30),
+  NotBeforeError: __webpack_require__(172),
+  TokenExpiredError: __webpack_require__(173),
 };
 
 
 /***/ }),
-/* 163 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var jws = __webpack_require__(40);
+var jws = __webpack_require__(43);
 
 module.exports = function (jwt, options) {
   options = options || {};
@@ -5307,11 +5678,11 @@ module.exports = function (jwt, options) {
 
 
 /***/ }),
-/* 164 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*global module, process*/
-var Buffer = __webpack_require__(41).Buffer;
+var Buffer = __webpack_require__(44).Buffer;
 var Stream = __webpack_require__(3);
 var util = __webpack_require__(5);
 
@@ -5368,14 +5739,14 @@ module.exports = DataStream;
 
 
 /***/ }),
-/* 165 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var bufferEqual = __webpack_require__(255);
-var base64url = __webpack_require__(23);
-var Buffer = __webpack_require__(41).Buffer;
-var crypto = __webpack_require__(12);
-var formatEcdsa = __webpack_require__(256);
+var bufferEqual = __webpack_require__(259);
+var base64url = __webpack_require__(28);
+var Buffer = __webpack_require__(44).Buffer;
+var crypto = __webpack_require__(13);
+var formatEcdsa = __webpack_require__(260);
 var util = __webpack_require__(5);
 
 var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512" and "none".'
@@ -5499,11 +5870,11 @@ module.exports = function jwa(algorithm) {
 
 
 /***/ }),
-/* 166 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*global module*/
-var Buffer = __webpack_require__(24).Buffer;
+var Buffer = __webpack_require__(29).Buffer;
 
 module.exports = function toString(obj) {
   if (typeof obj === 'string')
@@ -5515,10 +5886,10 @@ module.exports = function toString(obj) {
 
 
 /***/ }),
-/* 167 */
+/* 172 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var JsonWebTokenError = __webpack_require__(25);
+var JsonWebTokenError = __webpack_require__(30);
 
 var NotBeforeError = function (message, date) {
   JsonWebTokenError.call(this, message);
@@ -5533,10 +5904,10 @@ NotBeforeError.prototype.constructor = NotBeforeError;
 module.exports = NotBeforeError;
 
 /***/ }),
-/* 168 */
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var JsonWebTokenError = __webpack_require__(25);
+var JsonWebTokenError = __webpack_require__(30);
 
 var TokenExpiredError = function (message, expiredAt) {
   JsonWebTokenError.call(this, message);
@@ -5551,10 +5922,10 @@ TokenExpiredError.prototype.constructor = TokenExpiredError;
 module.exports = TokenExpiredError;
 
 /***/ }),
-/* 169 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ms = __webpack_require__(260);
+var ms = __webpack_require__(264);
 
 module.exports = function (time, iat) {
   var timestamp = iat || Math.floor(Date.now() / 1000);
@@ -5574,7 +5945,7 @@ module.exports = function (time, iat) {
 };
 
 /***/ }),
-/* 170 */
+/* 175 */
 /***/ (function(module, exports) {
 
 module.exports = extend
@@ -5599,12 +5970,34 @@ function extend() {
 
 
 /***/ }),
-/* 171 */,
-/* 172 */,
-/* 173 */,
-/* 174 */,
-/* 175 */,
-/* 176 */,
+/* 176 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Joi = __webpack_require__(11);
+var validateJWT = __webpack_require__(45);
+var CONFIG = __webpack_require__(23);
+
+module.exports = Joi.extend(function (joi) {
+    return {
+        name: 'date',
+
+        coerce: function coerce(value, state, options) {
+            return new Date().toISOString();
+        },
+
+        rules: [{
+            name: 'now',
+            validate: function validate(params, value, state, options) {
+                return value; // Everything is OK
+            }
+        }]
+    };
+});
+
+/***/ }),
 /* 177 */,
 /* 178 */,
 /* 179 */,
@@ -5655,28 +6048,35 @@ function extend() {
 /* 224 */,
 /* 225 */,
 /* 226 */,
-/* 227 */
+/* 227 */,
+/* 228 */,
+/* 229 */,
+/* 230 */,
+/* 231 */,
+/* 232 */,
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _joi = __webpack_require__(37);
+var _joi = __webpack_require__(11);
 
-var route = __webpack_require__(245)({});
-var CONFIG = __webpack_require__(249);
+var route = __webpack_require__(251)({});
+var CONFIG = __webpack_require__(23);
+var querystring = __webpack_require__(20);
 
 //'use strict'
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
-var people = __webpack_require__(247);
-var listings = __webpack_require__(269);
+var people = __webpack_require__(166);
+var listings = __webpack_require__(273);
 var mongo_uri;
 var cachedDb = null;
-var Boom = __webpack_require__(162);
-var Joi = __webpack_require__(37);
-var validateJWT = __webpack_require__(270);
-var tokenValidationJoi = __webpack_require__(271);
+var Boom = __webpack_require__(41);
+var Joi = __webpack_require__(11);
+var validateJWT = __webpack_require__(45);
+var tokenValidationJoi = __webpack_require__(274);
 var rootPath = '/sis';
 var DEBUG_SIS = false;
 exports.handler = function (event, context, callback) {
@@ -5689,7 +6089,7 @@ exports.handler = function (event, context, callback) {
     }*/
     processEvent(event, context, callback);
 };
-var lamdaResponse = __webpack_require__(39);
+var lamdaResponse = __webpack_require__(42);
 
 var routes = {
     "GET": [{
@@ -5727,7 +6127,26 @@ var routes = {
         }
     }, {
         path: "/listings/:id",
-        handler: listings.getById
+        handler: listings.getById,
+        validator: {
+            params: {
+                id: Joi.string().hex().min(8).required()
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+        }
+    }, {
+        path: "/listings/images/:id",
+        handler: listings.getImage,
+        validator: {
+            params: {
+                id: Joi.number().max(CONFIG.MAX_LISTIG_IMAGE)
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+        }
     }],
     "PUT": [{
         path: "/people/:id",
@@ -5737,7 +6156,7 @@ var routes = {
                 id: Joi.string().hex().min(8).required()
             },
             headers: {
-                "x-api-key": tokenValidationJoi.token().jwt()
+                "x-api-key": tokenValidationJoi.token().jwt('user')
             },
             body: people.updateSchema
         }
@@ -5749,12 +6168,23 @@ var routes = {
                 id: Joi.number().max(CONFIG.MAX_AUTHOR_IMAGE)
             },
             headers: {
-                "x-api-key": tokenValidationJoi.token().jwt()
+                "x-api-key": tokenValidationJoi.token().jwt('user')
             }
         }
     }, {
         path: "/listings/:id",
         handler: listings.update
+    }, {
+        path: "/listings/images/:id",
+        handler: listings.updateImage,
+        validator: {
+            params: {
+                id: Joi.number().max(CONFIG.MAX_LISTIG_IMAGE)
+            },
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt('user')
+            }
+        }
     }],
     "POST": [{
         path: "/people",
@@ -5767,7 +6197,22 @@ var routes = {
         }
     }, {
         path: "/listings",
-        handler: listings.add
+        handler: listings.add,
+        validator: {
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            },
+            body: listings.addSchema
+        }
+    }, {
+        path: "/addListing",
+        handler: listings.addListing,
+        validator: {
+            headers: {
+                "x-api-key": tokenValidationJoi.token().jwt()
+            }
+
+        }
     }]
 };
 function processEvent(event, context, callback) {
@@ -5775,7 +6220,17 @@ function processEvent(event, context, callback) {
     if (event.path.substr(-1) === "/") {
         event.path = event.path.substr(0, event.path.length - 1);
     }
-    if (routes[event.httpMethod]) {
+    if (event.httpMethod === 'OPTIONS') {
+        callback(null, {
+            statusCode: 200,
+            body: "{}",
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'content-type, x-api-key',
+                'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
+            }
+        });
+    } else if (routes[event.httpMethod]) {
         var handler;
         var validator;
         var params;
@@ -5787,6 +6242,7 @@ function processEvent(event, context, callback) {
             if (params !== false) {
                 handler = routes[event.httpMethod][a].handler;
                 event.params = params;
+                console.log('b', JSON.parse(event.body));
                 if (typeof event.body === 'string') {
                     event.body = JSON.parse(event.body);
                 }
@@ -5818,13 +6274,13 @@ function processEvent(event, context, callback) {
 };
 
 /***/ }),
-/* 228 */
+/* 234 */
 /***/ (function(module, exports) {
 
 module.exports = require("assert");
 
 /***/ }),
-/* 229 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5999,7 +6455,7 @@ internals.safeCharCodes = (function () {
 
 
 /***/ }),
-/* 230 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6162,7 +6618,7 @@ exports.errors = {
 
 
 /***/ }),
-/* 231 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6170,7 +6626,7 @@ exports.errors = {
 
 // Load modules
 
-const Joi = __webpack_require__(37);
+const Joi = __webpack_require__(11);
 
 
 // Declare internals
@@ -6194,7 +6650,7 @@ exports.options = Joi.object({
 
 
 /***/ }),
-/* 232 */
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6254,7 +6710,7 @@ module.exports = new internals.Lazy();
 
 
 /***/ }),
-/* 233 */
+/* 239 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6263,7 +6719,7 @@ module.exports = new internals.Lazy();
 // Load modules
 
 const Any = __webpack_require__(7);
-const Cast = __webpack_require__(18);
+const Cast = __webpack_require__(22);
 const Ref = __webpack_require__(8);
 const Hoek = __webpack_require__(4);
 
@@ -6923,7 +7379,7 @@ module.exports = new internals.Array();
 
 
 /***/ }),
-/* 234 */
+/* 240 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6938,7 +7394,7 @@ const Hoek = __webpack_require__(4);
 // Declare internals
 
 const internals = {
-    Set: __webpack_require__(157)
+    Set: __webpack_require__(160)
 };
 
 
@@ -7028,7 +7484,7 @@ module.exports = new internals.Boolean();
 
 
 /***/ }),
-/* 235 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7135,7 +7591,7 @@ module.exports = new internals.Binary();
 
 
 /***/ }),
-/* 236 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7144,7 +7600,7 @@ module.exports = new internals.Binary();
 // Load modules
 
 const Hoek = __webpack_require__(4);
-const ObjectType = __webpack_require__(160);
+const ObjectType = __webpack_require__(163);
 const Ref = __webpack_require__(8);
 
 
@@ -7232,7 +7688,7 @@ module.exports = new internals.Func();
 
 
 /***/ }),
-/* 237 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7467,7 +7923,7 @@ internals.Topo.prototype._sort = function () {
 
 
 /***/ }),
-/* 238 */
+/* 244 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7647,7 +8103,7 @@ module.exports = new internals.Number();
 
 
 /***/ }),
-/* 239 */
+/* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7655,14 +8111,14 @@ module.exports = new internals.Number();
 
 // Load modules
 
-const Net = __webpack_require__(28);
+const Net = __webpack_require__(33);
 const Hoek = __webpack_require__(4);
 let Isemail;                            // Loaded on demand
 const Any = __webpack_require__(7);
 const Ref = __webpack_require__(8);
-const JoiDate = __webpack_require__(159);
-const Uri = __webpack_require__(240);
-const Ip = __webpack_require__(241);
+const JoiDate = __webpack_require__(162);
+const Uri = __webpack_require__(246);
+const Ip = __webpack_require__(247);
 
 // Declare internals
 
@@ -7847,7 +8303,7 @@ internals.String = class extends Any {
 
         return this._test('email', isEmailOptions, function (value, state, options) {
 
-            Isemail = Isemail || __webpack_require__(242);
+            Isemail = Isemail || __webpack_require__(248);
 
             try {
                 const result = Isemail.validate(value, isEmailOptions);
@@ -8282,7 +8738,7 @@ module.exports = new internals.String();
 
 
 /***/ }),
-/* 240 */
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8290,7 +8746,7 @@ module.exports = new internals.String();
 
 // Load Modules
 
-const RFC3986 = __webpack_require__(161);
+const RFC3986 = __webpack_require__(164);
 
 
 // Declare internals
@@ -8335,7 +8791,7 @@ module.exports = internals.Uri;
 
 
 /***/ }),
-/* 241 */
+/* 247 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8343,7 +8799,7 @@ module.exports = internals.Uri;
 
 // Load modules
 
-const RFC3986 = __webpack_require__(161);
+const RFC3986 = __webpack_require__(164);
 
 
 // Declare internals
@@ -8396,7 +8852,7 @@ module.exports = internals.Ip;
 
 
 /***/ }),
-/* 242 */
+/* 248 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8404,7 +8860,7 @@ module.exports = internals.Ip;
 
 // Load modules
 
-const Punycode = __webpack_require__(243);
+const Punycode = __webpack_require__(249);
 
 // Declare internals
 
@@ -9747,26 +10203,26 @@ exports.normalize = internals.normalize = function (email) {
 
 
 /***/ }),
-/* 243 */
+/* 249 */
 /***/ (function(module, exports) {
 
 module.exports = require("punycode");
 
 /***/ }),
-/* 244 */
+/* 250 */
 /***/ (function(module, exports) {
 
 module.exports = {"_args":[[{"raw":"joi","scope":null,"escapedName":"joi","name":"joi","rawSpec":"","spec":"latest","type":"tag"},"/Users/almahmud/Documents/PProject/almahmud.com/src"]],"_from":"joi@latest","_id":"joi@13.1.2","_inCache":true,"_location":"/joi","_nodeVersion":"8.9.4","_npmOperationalInternal":{"host":"s3://npm-registry-packages","tmp":"tmp/joi-13.1.2.tgz_1517599419155_0.6128392068203539"},"_npmUser":{"name":"marsup","email":"nicolas@morel.io"},"_npmVersion":"5.6.0","_phantomChildren":{},"_requested":{"raw":"joi","scope":null,"escapedName":"joi","name":"joi","rawSpec":"","spec":"latest","type":"tag"},"_requiredBy":["#USER"],"_resolved":"https://registry.npmjs.org/joi/-/joi-13.1.2.tgz","_shasum":"b2db260323cc7f919fafa51e09e2275bd089a97e","_shrinkwrap":null,"_spec":"joi","_where":"/Users/almahmud/Documents/PProject/almahmud.com/src","bugs":{"url":"https://github.com/hapijs/joi/issues"},"dependencies":{"hoek":"5.x.x","isemail":"3.x.x","topo":"3.x.x"},"description":"Object schema validation","devDependencies":{"code":"5.x.x","hapitoc":"1.x.x","lab":"15.x.x"},"directories":{},"dist":{"integrity":"sha512-bZZSQYW5lPXenOfENvgCBPb9+H6E6MeNWcMtikI04fKphj5tvFL9TOb+H2apJzbCrRw/jebjTH8z6IHLpBytGg==","shasum":"b2db260323cc7f919fafa51e09e2275bd089a97e","tarball":"https://registry.npmjs.org/joi/-/joi-13.1.2.tgz"},"engines":{"node":">=8.9.0"},"gitHead":"97fa7646d568245d15c8981282a56d721414f28d","homepage":"https://github.com/hapijs/joi","keywords":["hapi","schema","validation"],"license":"BSD-3-Clause","main":"lib/index.js","maintainers":[{"name":"nlf","email":"quitlahok@gmail.com"},{"name":"hueniverse","email":"eran@hammer.io"},{"name":"marsup","email":"nicolas@morel.io"},{"name":"wyatt","email":"wpreul@gmail.com"}],"name":"joi","optionalDependencies":{},"readme":"ERROR: No README data found!","repository":{"type":"git","url":"git://github.com/hapijs/joi.git"},"scripts":{"test":"lab -t 100 -a code -L","test-cov-html":"lab -r html -o coverage.html -a code","test-debug":"lab -a code","toc":"hapitoc","version":"npm run toc && git add API.md README.md"},"version":"13.1.2","warnings":[{"code":"ENOTSUP","required":{"node":">=8.9.0"},"pkgid":"joi@13.1.2"},{"code":"ENOTSUP","required":{"node":">=8.9.0"},"pkgid":"joi@13.1.2"}]}
 
 /***/ }),
-/* 245 */
+/* 251 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var pathToRegexp = __webpack_require__(246);
-var Boom = __webpack_require__(162);
+var pathToRegexp = __webpack_require__(252);
+var Boom = __webpack_require__(41);
 
 module.exports = function (options) {
   options = options || {};
@@ -9808,7 +10264,7 @@ function decodeParam(param) {
 }
 
 /***/ }),
-/* 246 */
+/* 252 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10186,80 +10642,33 @@ function pathToRegexp(path, keys, options) {
 }
 
 /***/ }),
-/* 247 */
+/* 253 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var lamdaResponse = __webpack_require__(39);
-var getJWTToken = __webpack_require__(248);
-var Joi = __webpack_require__(37);
-var joiGetDate = __webpack_require__(272);
-
-exports.add = function (event, context, callback) {
-    callback(null, lamdaResponse({ msg: "people create", event: event, context: context }));
-};
-exports.update = function (event, context, callback) {
-    callback(null, lamdaResponse({ msg: "people update", event: event, context: context }));
-};
-exports.updateImage = function (event, context, callback) {
-    callback(null, lamdaResponse({ msg: "people update Image", event: event, context: context }));
-};
-exports.getImage = function (event, context, callback) {
-    callback(null, lamdaResponse({ msg: "people get Image", event: event, context: context }));
-};
-exports.getById = function (event, context, callback) {
-    //should be different for public and owner
-    callback(null, lamdaResponse({ msg: "people getById", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
-};
-exports.getByIdPublic = function (event, context, callback) {
-    //should be different for public and owner
-    callback(null, lamdaResponse({ msg: "people getByIdPublic", event: event, context: context, token: getJWTToken(null, 'web', {}) }));
-};
-exports.addSchema = {
-    created_at: joiGetDate.date().now(),
-    updated_at: joiGetDate.date().now(),
-    locale: Joi.string().valid("en", "fr").default('en'),
-    active: Joi.number().valid(0).default(0),
-    username: Joi.string(),
-    email: Joi.string().email(),
-    encrypted_password: Joi.string().min(8),
-    reset_password_token: Joi.string(),
-    given_name: Joi.string(),
-    family_name: Joi.string().required(),
-    phone_number: Joi.number().required(),
-    description: Joi.string(),
-    facebook_id: Joi.string(),
-    is_organization: Joi.boolean(),
-    organization_name: Joi.string()
-};
-exports.updateSchema = {
-    updated_at: joiGetDate.date().now(),
-    locale: Joi.string().valid("en", "fr"),
-    active: Joi.number().valid(0).default(0),
-    username: Joi.string(),
-    email: Joi.string().email(),
-    encrypted_password: Joi.string().min(8),
-    reset_password_token: Joi.string(),
-    given_name: Joi.string(),
-    family_name: Joi.string(),
-    description: Joi.string(),
-    facebook_id: Joi.string(),
-    is_organization: Joi.boolean(),
-    organization_name: Joi.string()
+module.exports = {
+  PROVINCES: ['ON', 'QC', 'NS', 'NB', 'MB', 'BC', 'PE', 'SK', 'AB', 'NL', 'NT', 'NU', 'YT'],
+  PROVINCES_EXPANDED: [{ view: 'Ontario', value: 'ON' }, { view: 'Quebec', value: 'QC' }, { view: 'Nova Scotia', value: 'NS' }, { view: 'New Brunswick', value: 'NB' }, { view: 'Manitoba', value: 'MB' }, { view: 'British Columbia', value: 'BC' }, { view: 'Prince Edward Island', value: 'PE' }, { view: 'Saskatchewan', value: 'SK' }, { view: 'Alberta', value: 'AB' }, { view: 'Newfoundland and Labrador', value: 'NL' }, { view: 'Northwest Territories', value: 'NT' }, { view: 'Nunavut', value: 'NU' }, { view: 'Yukon', value: 'YT' }]
 };
 
 /***/ }),
-/* 248 */
+/* 254 */
+/***/ (function(module, exports) {
+
+module.exports = {"93c2c2f10abedd9b38efc535dd8ef5e24b57e9b1":"-----BEGIN CERTIFICATE-----\nMIIDHDCCAgSgAwIBAgIIBHY4Z69B1AIwDQYJKoZIhvcNAQEFBQAwMTEvMC0GA1UE\nAxMmc2VjdXJldG9rZW4uc3lzdGVtLmdzZXJ2aWNlYWNjb3VudC5jb20wHhcNMTgw\nMjE4MDA0NTI2WhcNMTgwMjIxMDExNTI2WjAxMS8wLQYDVQQDEyZzZWN1cmV0b2tl\nbi5zeXN0ZW0uZ3NlcnZpY2VhY2NvdW50LmNvbTCCASIwDQYJKoZIhvcNAQEBBQAD\nggEPADCCAQoCggEBANy4kbIcbhh2WHiWyBhH5wu/GHjTW4FfSXGIrWoGgU7lvoh3\nM9u6+YcA/jryKEiEjWrUCbSwVhSR1EP3T1movblF418rBaCHzyVmzgqgF8V54DM2\nk8NOUDE+YBF3kX2QOYOCNgIH8Gd7i22JUSednq7VS46JZo5jCOsDE0kYjJtL/3yE\n1XWGxH06qale0NlAnYqtxcfDS6zgg+8By5I4BRw99Xf88ic6qmJ42gKrEKH9RXwO\nR5vKJec7ThxRRtj4Y5P62i2eC6OkK3wKgKjoJbo/FDnw2AglVXEZ3DZyeF9V0BwF\nR2431FfXwczblQe+PJ89oeJrzKYjb7xaMVqhWOECAwEAAaM4MDYwDAYDVR0TAQH/\nBAIwADAOBgNVHQ8BAf8EBAMCB4AwFgYDVR0lAQH/BAwwCgYIKwYBBQUHAwIwDQYJ\nKoZIhvcNAQEFBQADggEBAFF+a0U/vmzSQ8XLKqkOvxVweFc/PEm6laPUmjgjn2W2\nymWmvrOYu1U8My5+6ADZcINjhC7f1f/fX5N6idmboT1SVphipLTBAToRCdsqga6P\nthSbvEXbbC8Ysx4cjgSDChV6aOJ1MndUldtfDAb0SDHD38jqlOr7yTnE5uQ1DHke\nlvDG06kdspdKVgge9E1XtgJwIIBIfXrPKUawjwPDNUyEUVMtTac7Em6kchkHflbG\nIkluBuLtT+abB1APm32HDNsIBh2TwaF4PfCRn7hfNkPkBj9S04xxFS8QKjBBrHFg\nCHuoSC3PcmIbNY3NzA3WtVgtw6Gnv5aDYjMnLncHpl0=\n-----END CERTIFICATE-----\n","e16b8eae5739964c51bc1525b5fe6fdccf582cd4":"-----BEGIN CERTIFICATE-----\nMIIDHDCCAgSgAwIBAgIIa6dIUXMHCHEwDQYJKoZIhvcNAQEFBQAwMTEvMC0GA1UE\nAxMmc2VjdXJldG9rZW4uc3lzdGVtLmdzZXJ2aWNlYWNjb3VudC5jb20wHhcNMTgw\nMjE5MDA0NTI2WhcNMTgwMjIyMDExNTI2WjAxMS8wLQYDVQQDEyZzZWN1cmV0b2tl\nbi5zeXN0ZW0uZ3NlcnZpY2VhY2NvdW50LmNvbTCCASIwDQYJKoZIhvcNAQEBBQAD\nggEPADCCAQoCggEBAItwG69I0y7ZrTYkkvmwgp/k8fnOAI9148p/zI/CC+rwUT1B\nSGLXoHMmqxiNFuBoDk72qaH9usCFq1lZnxmESRCqP3oWoFjBqcrkWtStwsFp9gMD\njwOILUq+CvfaVBIqimN6srAx5lkFSFDVsMH+a8K+9uJ0hTmXOj/IMstPBwdSxYeq\n8alGO2L3H1ker+Plwf5yY2BqvPjGuEZl3tq/0k4i7RpCmmG1yqxELU/Shwu6S8+k\n9Gu1VMTns2T58vJ29F7TM1D7oO/MHamQgMp4YnRTatOCk5zvNHii5pIf0zbsYrhj\nTa7mZkthH8cZPcGCJXcV1vzk3JmvdrznJ3Pkls8CAwEAAaM4MDYwDAYDVR0TAQH/\nBAIwADAOBgNVHQ8BAf8EBAMCB4AwFgYDVR0lAQH/BAwwCgYIKwYBBQUHAwIwDQYJ\nKoZIhvcNAQEFBQADggEBAEte/fm5e30BkupTl3GzODJ7INNkd/9cqRvmT1XYSone\nqkAjWLMce10WO7gn41R9u4ZqhqvuSWo1Sv9SU1Ww+TjZV7hfnskGx4SuZg55ICRX\nC96FPlfsTtMKMeCqifwNlHKxoGjDivMJ1wLxSb3NwSNHpEXpBrMusroPGkl093Fg\n3TXolsTzH+iPg+EmglSq/Ds9LeFInMBC0K25KMjA1sTkBDPbPIZgXUqYKJ9YqNIQ\nWU67EZdmnhex+oaIzvYroFtL06c1Zg3Ko9NzkGkhrDb8GOu58mZOf90RlVFSoZuL\n9rrd7DDcLpstXSE3PcYant3jNj2K0XChK7JPTlZZd80=\n-----END CERTIFICATE-----\n","6a07c50c68202b51a3bba69eb866a896e187ad2c":"-----BEGIN CERTIFICATE-----\nMIIDHDCCAgSgAwIBAgIIL8qGjKow1gswDQYJKoZIhvcNAQEFBQAwMTEvMC0GA1UE\nAxMmc2VjdXJldG9rZW4uc3lzdGVtLmdzZXJ2aWNlYWNjb3VudC5jb20wHhcNMTgw\nMjE3MDA0NTI2WhcNMTgwMjIwMDExNTI2WjAxMS8wLQYDVQQDEyZzZWN1cmV0b2tl\nbi5zeXN0ZW0uZ3NlcnZpY2VhY2NvdW50LmNvbTCCASIwDQYJKoZIhvcNAQEBBQAD\nggEPADCCAQoCggEBAN+e48msHCByOxAADYiuZw8Jii6IuBPS688zsi6vS85YZ5L5\noWwrgbqyMzg30vZJt3N0YbWCeOVosXnSsnCdS+5QRIWb+JOzTZ0E2GIDMV1e8SJ0\nsZDxo/UM0hvE2YUGBX4Q4ay7KiYcQ08L7J2nOToh8X7Lm9MdCEDrQjJ2dvYanoRB\naPFWACsbLQrp1eF5mIYTdoRfwJSut5xrEymbsLWLsi5BfyxAM5Gdk+5uSdBnVjPz\nvyDzXge9Lu5PdFY/gnmzvSUNvmUtjDVsniZKouEG1eHKAaNvmbj2D96S3kLl9IQl\nSloXj0GznTUL5xyVuGlp1LmHCKRI3R83MIE033cCAwEAAaM4MDYwDAYDVR0TAQH/\nBAIwADAOBgNVHQ8BAf8EBAMCB4AwFgYDVR0lAQH/BAwwCgYIKwYBBQUHAwIwDQYJ\nKoZIhvcNAQEFBQADggEBAN5z0jhdwqMFEJYmjP6fQWhRY09KdVOBM0glJensGhsM\n5+yMsF3WwZ0dPgbTldgpGdvpkeq6ifIWFTjFFU1uMEvezsi3XENfE7nHp3WAAIsH\n7ANkt+kJ20lZoEl2WePDeLMFI/3+mTxnvyX+T6hcyTmydna2SGEwfYsyxdbJ1Kn0\nBmMmbnFdQPJC5Krm3qpZb8uu7KV5wfDj+WpfgKCGFlfCuKkiVfBz0gigxQ76hRhC\nUhF5a1dAi++1PjvUesDxKCLtlwta/0mLxs2pSNoa+U53bAwABS1mQQJ3Wpee/yKa\nqXjXL/ONCzfd3TypWz1EswTIqFwFTCnPOgrQSBsURHo=\n-----END CERTIFICATE-----\n"}
+
+/***/ }),
+/* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var CONFIG = __webpack_require__(249);
-var fs = __webpack_require__(35);
-var jwt = __webpack_require__(251);
+var CONFIG = __webpack_require__(23);
+var fs = __webpack_require__(38);
+var jwt = __webpack_require__(167);
 function getJWTToken(auth, type, obj) {
   if (auth && CONFIG.JTW_TOKEN[type] === auth.type) {
     return auth.token;
@@ -10277,78 +10686,15 @@ function getJWTToken(auth, type, obj) {
 module.exports = getJWTToken;
 
 /***/ }),
-/* 249 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var pp = __webpack_require__(250);
-var PRIVATE_KEY = '-----BEGIN RSA PRIVATE KEY-----\nMIICXAIBAAKBgGklWf9rF9g2RlcgLxXFc/DnIcPpVWnbYTZdbVX58LjAXihHjC/W\nXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVbo4ypQyWqip5Ue1YHnUkqu6UB\nYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhnwX5zXGPXO4AvPixpAgMBAAEC\ngYBcVO54+sQPm2mdbKesSJ4NeAoQjb/xmzH8mYI/s6INuu90E5ApGecVxwUoS9fS\npYuLWrD23LevZ7mqs9Zh2tdq3z9kQoQ8obSdWpU7WpOGjzCEWrRJbx2pXT5NxZ67\noKbWI3A3DGMlGKwX9V9bVrZM42S8eWA++vZ+R1hLDFslAQJBAMquK3hM0jtNzhrM\nJJZcITMPWIwAzdRk3OhXf1iEb9xj0PwzfA0aN0o2sxGVS0WQJKjnU8EufMoKTRGu\nXfKfJ5ECQQCEzpHMT+iIMqTVBzt54866xrPMIFvxSUsIKv5M1St8eAU+ryIwCz2u\nZIfvAb62RNKYg4gvMkEWwFbRsVCDmztZAkEAkZJ9OF981AlzEj4zvScY1VKdV5kw\nPO/g1qQZnBsrONEchjf4TnTY513YSbXAJYt9OS9FMchQ6tBxQFTLt3pmcQJAV6XM\n6z5BhMGHr2AajJMgOHwy5SDmDRQGBNn7AtIc5QSA0aHbukFw78tBOye3qas6IZWN\nJzjPZCiEI9gV/wVP4QJBALW2f9YgwjnAPSlpHm7XOxux+Ck4OUmLztCsJPB9Iuog\ncVbO7SxVR1z5YtDdxY0UI9BTX+0MXbDWIouH4kET3HI=\n-----END RSA PRIVATE KEY-----';
-var PUBLIC_KEY = '-----BEGIN PUBLIC KEY-----\nMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGklWf9rF9g2RlcgLxXFc/DnIcPp\nVWnbYTZdbVX58LjAXihHjC/WXVwQBuaWOoz/5OMa1622vSR7fV956kOjMjvu6CVb\no4ypQyWqip5Ue1YHnUkqu6UBYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhn\nwX5zXGPXO4AvPixpAgMBAAE=\n-----END PUBLIC KEY-----';
-var config = {
-  TOKEN_EXPIERY_LENGTH: 1 * 60 * 60 * 1000,
-  MAX_AUTHOR_IMAGE: 1,
-  WEB_TOKEN_EXPIERY: {
-    web: '1h',
-    user: '1h',
-    admin: '1h'
-  },
-  JTW_TOKEN: {
-    web: 0,
-    user: 1,
-    admin: 2
-  },
-  PRIVATE_KEY: PRIVATE_KEY,
-  PUBLIC_KEY: PUBLIC_KEY
-};
-
-for (var a in pp) {
-  config[a] = pp[a];
-}
-for (var b in config) {
-  if (process.env[b]) {
-    config[b] = process.env[b];
-  }
-}
-module.exports = config;
-
-/***/ }),
-/* 250 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = {
-  PROVINCES: ['ON', 'QC', 'NS', 'NB', 'MB', 'BC', 'PE', 'SK', 'AB', 'NL', 'NT', 'NU', 'YT'],
-  PROVINCES_EXPANDED: [{ view: 'Ontario', value: 'ON' }, { view: 'Quebec', value: 'QC' }, { view: 'Nova Scotia', value: 'NS' }, { view: 'New Brunswick', value: 'NB' }, { view: 'Manitoba', value: 'MB' }, { view: 'British Columbia', value: 'BC' }, { view: 'Prince Edward Island', value: 'PE' }, { view: 'Saskatchewan', value: 'SK' }, { view: 'Alberta', value: 'AB' }, { view: 'Newfoundland and Labrador', value: 'NL' }, { view: 'Northwest Territories', value: 'NT' }, { view: 'Nunavut', value: 'NU' }, { view: 'Yukon', value: 'YT' }]
-};
-
-/***/ }),
-/* 251 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = {
-  decode: __webpack_require__(163),
-  verify: __webpack_require__(259),
-  sign: __webpack_require__(261),
-  JsonWebTokenError: __webpack_require__(25),
-  NotBeforeError: __webpack_require__(167),
-  TokenExpiredError: __webpack_require__(168),
-};
-
-
-/***/ }),
-/* 252 */
+/* 256 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*global module*/
-var base64url = __webpack_require__(23);
-var DataStream = __webpack_require__(164);
-var jwa = __webpack_require__(165);
+var base64url = __webpack_require__(28);
+var DataStream = __webpack_require__(169);
+var jwa = __webpack_require__(170);
 var Stream = __webpack_require__(3);
-var toString = __webpack_require__(166);
+var toString = __webpack_require__(171);
 var util = __webpack_require__(5);
 
 function jwsSecuredInput(header, payload, encoding) {
@@ -10415,12 +10761,12 @@ module.exports = SignStream;
 
 
 /***/ }),
-/* 253 */
+/* 257 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var pad_string_1 = __webpack_require__(254);
+var pad_string_1 = __webpack_require__(258);
 function encode(input, encoding) {
     if (encoding === void 0) { encoding = "utf8"; }
     if (Buffer.isBuffer(input)) {
@@ -10459,7 +10805,7 @@ exports.default = base64url;
 
 
 /***/ }),
-/* 254 */
+/* 258 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10486,14 +10832,14 @@ exports.default = padString;
 
 
 /***/ }),
-/* 255 */
+/* 259 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /*jshint node:true */
 
-var Buffer = __webpack_require__(24).Buffer; // browserify
-var SlowBuffer = __webpack_require__(24).SlowBuffer;
+var Buffer = __webpack_require__(29).Buffer; // browserify
+var SlowBuffer = __webpack_require__(29).SlowBuffer;
 
 module.exports = bufferEq;
 
@@ -10534,16 +10880,16 @@ bufferEq.restore = function() {
 
 
 /***/ }),
-/* 256 */
+/* 260 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var base64Url = __webpack_require__(23).fromBase64;
-var Buffer = __webpack_require__(41).Buffer;
+var base64Url = __webpack_require__(28).fromBase64;
+var Buffer = __webpack_require__(44).Buffer;
 
-var getParamBytesForAlg = __webpack_require__(257);
+var getParamBytesForAlg = __webpack_require__(261);
 
 var MAX_OCTET = 0x80,
 	CLASS_UNIVERSAL = 0,
@@ -10722,7 +11068,7 @@ module.exports = {
 
 
 /***/ }),
-/* 257 */
+/* 261 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10752,15 +11098,15 @@ module.exports = getParamBytesForAlg;
 
 
 /***/ }),
-/* 258 */
+/* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*global module*/
-var base64url = __webpack_require__(23);
-var DataStream = __webpack_require__(164);
-var jwa = __webpack_require__(165);
+var base64url = __webpack_require__(28);
+var DataStream = __webpack_require__(169);
+var jwa = __webpack_require__(170);
 var Stream = __webpack_require__(3);
-var toString = __webpack_require__(166);
+var toString = __webpack_require__(171);
 var util = __webpack_require__(5);
 var JWS_REGEX = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
 
@@ -10878,16 +11224,16 @@ module.exports = VerifyStream;
 
 
 /***/ }),
-/* 259 */
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var JsonWebTokenError = __webpack_require__(25);
-var NotBeforeError    = __webpack_require__(167);
-var TokenExpiredError = __webpack_require__(168);
-var decode            = __webpack_require__(163);
-var timespan          = __webpack_require__(169);
-var jws               = __webpack_require__(40);
-var xtend             = __webpack_require__(170);
+var JsonWebTokenError = __webpack_require__(30);
+var NotBeforeError    = __webpack_require__(172);
+var TokenExpiredError = __webpack_require__(173);
+var decode            = __webpack_require__(168);
+var timespan          = __webpack_require__(174);
+var jws               = __webpack_require__(43);
+var xtend             = __webpack_require__(175);
 
 module.exports = function (jwtString, secretOrPublicKey, options, callback) {
   if ((typeof options === 'function') && !callback) {
@@ -11065,7 +11411,7 @@ module.exports = function (jwtString, secretOrPublicKey, options, callback) {
 
 
 /***/ }),
-/* 260 */
+/* 264 */
 /***/ (function(module, exports) {
 
 /**
@@ -11233,19 +11579,19 @@ function plural(ms, msAbs, n, name) {
 
 
 /***/ }),
-/* 261 */
+/* 265 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var timespan = __webpack_require__(169);
-var xtend = __webpack_require__(170);
-var jws = __webpack_require__(40);
-var includes = __webpack_require__(262);
-var isBoolean = __webpack_require__(263);
-var isInteger = __webpack_require__(264);
-var isNumber = __webpack_require__(265);
-var isPlainObject = __webpack_require__(266);
-var isString = __webpack_require__(267);
-var once = __webpack_require__(268);
+var timespan = __webpack_require__(174);
+var xtend = __webpack_require__(175);
+var jws = __webpack_require__(43);
+var includes = __webpack_require__(266);
+var isBoolean = __webpack_require__(267);
+var isInteger = __webpack_require__(268);
+var isNumber = __webpack_require__(269);
+var isPlainObject = __webpack_require__(270);
+var isString = __webpack_require__(271);
+var once = __webpack_require__(272);
 
 var sign_options_schema = {
   expiresIn: { isValid: function(value) { return isInteger(value) || isString(value); }, message: '"expiresIn" should be a number of seconds or string representing a timespan' },
@@ -11427,7 +11773,7 @@ module.exports = function (payload, secretOrPrivateKey, options, callback) {
 
 
 /***/ }),
-/* 262 */
+/* 266 */
 /***/ (function(module, exports) {
 
 /**
@@ -12178,7 +12524,7 @@ module.exports = includes;
 
 
 /***/ }),
-/* 263 */
+/* 267 */
 /***/ (function(module, exports) {
 
 /**
@@ -12254,7 +12600,7 @@ module.exports = isBoolean;
 
 
 /***/ }),
-/* 264 */
+/* 268 */
 /***/ (function(module, exports) {
 
 /**
@@ -12525,7 +12871,7 @@ module.exports = isInteger;
 
 
 /***/ }),
-/* 265 */
+/* 269 */
 /***/ (function(module, exports) {
 
 /**
@@ -12610,7 +12956,7 @@ module.exports = isNumber;
 
 
 /***/ }),
-/* 266 */
+/* 270 */
 /***/ (function(module, exports) {
 
 /**
@@ -12755,7 +13101,7 @@ module.exports = isPlainObject;
 
 
 /***/ }),
-/* 267 */
+/* 271 */
 /***/ (function(module, exports) {
 
 /**
@@ -12856,7 +13202,7 @@ module.exports = isString;
 
 
 /***/ }),
-/* 268 */
+/* 272 */
 /***/ (function(module, exports) {
 
 /**
@@ -13156,16 +13502,64 @@ module.exports = once;
 
 
 /***/ }),
-/* 269 */
+/* 273 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var lamdaResponse = __webpack_require__(39);
+var lamdaResponse = __webpack_require__(42);
+var joiGetDate = __webpack_require__(176);
+var remote = __webpack_require__(165);
 
+var Joi = __webpack_require__(11);
+var listings = "https://api.mlab.com/api/1/databases/sis/collections/listings?apiKey=nupdJlpcblePLqZbYT6Zr02fBTUHRLEN";
+var authors = "https://api.mlab.com/api/1/databases/sis/collections/authors?apiKey=nupdJlpcblePLqZbYT6Zr02fBTUHRLEN";
 exports.add = function (event, context, callback) {
     callback(null, lamdaResponse({ msg: "listings create", event: event, context: context }));
+};
+exports.addListing = function (event, context, callback) {
+    var authorFromKey = event.headers['x-api-key'];
+    var author = event.body.author;
+    var space = event.body.space;
+    space.author_id = event.headers['x-api-key'].user_id;
+    console.log(authors + '&q=' + JSON.stringify({ _id: space.author_id }));
+    remote(authors + '&q=' + JSON.stringify({ _id: space.author_id })).get(function (err, res, body) {
+        //console.log("err", err)
+        //console.log("body", body)
+        console.log("body", body.length);
+
+        if (body.length === 0) {
+            console.log('try to add author');
+            for (var a in author) {
+                if (author[a] !== "") {
+                    authorFromKey[a] = author[a];
+                }
+            }
+            authorFromKey._id = authorFromKey.user_id;
+            authorFromKey.firebase.identities = JSON.stringify(authorFromKey.firebase.identities);
+            remote(authors).post(authorFromKey, function (err2, res2, body2) {
+                console.log('author added', body2);
+                remote(listings).post(space, function (err3, res3, body3) {
+                    callback(null, lamdaResponse(body3));
+                });
+            });
+        } else {
+            console.log('author old');
+            var authorFromDB = body[0];
+            remote(listings).post(space, function (err3, res3, body3) {
+                callback(null, lamdaResponse(body3));
+            });
+        }
+        //callback(null, lamdaResponse({body,err}))
+    });
+    /*remote(listings)
+    .post(event.body.space, (err, res, body)=>{
+        console.log(res.statusCode); // 200
+        console.log(body); // {"name": "Bob", "key": "value"}
+        callback(null, lamdaResponse(body))
+    })*/
+    //callback(null, lamdaResponse({msg:"listings addListing",event, context}))
 };
 exports.update = function (event, context, callback) {
     callback(null, lamdaResponse({ msg: "listings update", event: event, context: context }));
@@ -13174,51 +13568,87 @@ exports.getById = function (event, context, callback) {
     //should be different for public and owner
     callback(null, lamdaResponse({ msg: "listings getById", event: event, context: context }));
 };
+exports.updateImage = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people update Image", event: event, context: context }));
+};
+exports.getImage = function (event, context, callback) {
+    callback(null, lamdaResponse({ msg: "people get Image", event: event, context: context }));
+};
+var people = __webpack_require__(166);
+var durationTypes = Joi.string().valid("day", "week", "month", "hour");
+exports.addSchema = {
+    community_id: Joi.number().default(1),
+    author_id: Joi.alternatives().try(Joi.string(), Joi.object().keys(people.addSchema)),
+    title: Joi.string().required(),
+    times_viewed: Joi.number().valid(0).default(0),
+    language: Joi.string(),
+    created_at: joiGetDate.date().now(),
+    updated_at: joiGetDate.date().now(),
+    description: Joi.string().required(),
+    origin: Joi.string().required(),
+    destination: Joi.string(),
+    valid_until: Joi.string().isoDate(),
+    delta: 0,
+    open: 1,
+    privacy: Joi.string().valid("private", "public", "unlisted").default('public'),
+    comments_count: Joi.number(),
+    category_id: Joi.number().valid(2, 7, 10, 11, 12),
+    share_type_id: null,
+    listing_shape_id: Joi.number(),
+    price_cents: Joi.alternatives().try(Joi.number(), Joi.array().items(Joi.number())),
+    currency: Joi.string().valid("CAD", "USD"),
+    unit_type: Joi.alternatives().try(durationTypes, Joi.array().items(durationTypes)),
+    deleted: Joi.boolean().default(false),
+    pickup_enabled: Joi.boolean().default(false),
+    active: Joi.number().valid(0).default(0),
+    location: Joi.object().keys({
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required(),
+        address: Joi.string().required(),
+        google_address: Joi.string().required(),
+        google_object: Joi.object()
+    }).required()
+};
+exports.updateSchema = {
+    title: Joi.string(),
+    times_viewed: Joi.number(),
+    language: Joi.string(),
+    updated_at: joiGetDate.date().now(),
+    description: Joi.string(),
+    origin: Joi.string(),
+    destination: Joi.string(),
+    valid_until: Joi.string().isoDate().default(new Date()),
+    delta: 0,
+    open: 1,
+    privacy: Joi.string().valid("private", "public", "unlisted"),
+    comments_count: Joi.number(),
+    category_id: Joi.number().valid(2, 7, 10, 11, 12),
+    share_type_id: null,
+    listing_shape_id: Joi.number(),
+    price_cents: Joi.alternatives().try(Joi.number(), Joi.array().items(Joi.number())),
+    currency: Joi.string().valid("CAD", "USD"),
+    unit_type: Joi.alternatives().try(durationTypes, Joi.array().items(durationTypes)),
+    deleted: Joi.boolean().default(false),
+    pickup_enabled: Joi.boolean().default(false),
+    location: Joi.object().keys({
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required(),
+        address: Joi.string().required(),
+        google_address: Joi.string().required(),
+        google_object: Joi.object()
+    })
+};
 
 /***/ }),
-/* 270 */
+/* 274 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var CONFIG = __webpack_require__(249);
-var Boom = __webpack_require__(162);
-var jwt = __webpack_require__(251);
-
-//var logger = require('./logger');
-
-function authorizedJWT(type, request, reply) {
-  logger.debug('authorizedJWT', JSON.stringify({ type: CONFIG.JTW_TOKEN[type], auth: request.auth }));
-  if (request.auth.isAuthenticated && request.auth.credentials.type >= CONFIG.JTW_TOKEN[type] && (request.params && request.params.province === request.auth.credentials.province && request.params.license === request.auth.credentials.license || request.auth.credentials.type === CONFIG.JTW_TOKEN.admin)) {
-    return true;
-  } else {
-    reply(Boom.unauthorized());
-    return false;
-  }
-}
-function validateJWT(token) {
-  console.log('validateJWT');
-  try {
-    var decoded = jwt.verify(token, CONFIG.PUBLIC_KEY);
-    return decoded;
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
-}
-module.exports = validateJWT;
-
-/***/ }),
-/* 271 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Joi = __webpack_require__(37);
-var validateJWT = __webpack_require__(270);
-var CONFIG = __webpack_require__(249);
+var Joi = __webpack_require__(11);
+var validateJWT = __webpack_require__(45);
+var CONFIG = __webpack_require__(23);
 
 module.exports = Joi.extend(function (joi) {
     return {
@@ -13237,38 +13667,10 @@ module.exports = Joi.extend(function (joi) {
             },
             validate: function validate(params, value, state, options) {
                 console.log('validate', { value: value, params: params });
-                if (!value || CONFIG.JTW_TOKEN[params.q] !== value.type) {
+                if (!value || value.iss !== CONFIG.ISS) {
                     // Generate an error, state and options need to be passed
                     return this.createError('token.jwt', { v: value }, state, options);
                 }
-                return value; // Everything is OK
-            }
-        }]
-    };
-});
-
-/***/ }),
-/* 272 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Joi = __webpack_require__(37);
-var validateJWT = __webpack_require__(270);
-var CONFIG = __webpack_require__(249);
-
-module.exports = Joi.extend(function (joi) {
-    return {
-        name: 'date',
-
-        coerce: function coerce(value, state, options) {
-            return new Date().toISOString();
-        },
-
-        rules: [{
-            name: 'now',
-            validate: function validate(params, value, state, options) {
                 return value; // Everything is OK
             }
         }]

@@ -1,6 +1,7 @@
 import { valid } from 'joi';
 var route = require('./src/pathMatch')({});
 var CONFIG = require('./config/config');
+const querystring = require('querystring');
 
 //'use strict'
 //const AWS = require('aws-sdk');
@@ -40,8 +41,7 @@ var routes = {
                     "x-api-key": tokenValidationJoi.token().jwt()
                 }
             }
-        },
-        {
+        },{
             path:"/people/:id", 
             handler:people.getById,
             validator: {
@@ -63,10 +63,28 @@ var routes = {
                     "x-api-key": tokenValidationJoi.token().jwt()
                 }
             }
-        },
-        {
+        },{
             path:"/listings/:id", 
-            handler:listings.getById
+            handler:listings.getById,
+            validator: {
+                params: {
+                    id: Joi.string().hex().min(8).required()
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+            }
+        },{
+            path:"/listings/images/:id",
+            handler:listings.getImage,
+            validator: {
+                params: {
+                    id: Joi.number().max(CONFIG.MAX_LISTIG_IMAGE)
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+            }
         }
     ],
     "PUT":[
@@ -78,7 +96,7 @@ var routes = {
                     id: Joi.string().hex().min(8).required()
                 },
                 headers:{
-                    "x-api-key": tokenValidationJoi.token().jwt()
+                    "x-api-key": tokenValidationJoi.token().jwt('user')
                 },
                 body:people.updateSchema
             }
@@ -90,12 +108,23 @@ var routes = {
                     id: Joi.number().max(CONFIG.MAX_AUTHOR_IMAGE)
                 },
                 headers:{
-                    "x-api-key": tokenValidationJoi.token().jwt()
+                    "x-api-key": tokenValidationJoi.token().jwt('user')
                 }
             }
         },{
             path:"/listings/:id",
             handler:listings.update
+        },{
+            path:"/listings/images/:id",
+            handler:listings.updateImage,
+            validator: {
+                params: {
+                    id: Joi.number().max(CONFIG.MAX_LISTIG_IMAGE)
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt('user')
+                }
+            }
         }
     ],
     "POST":[
@@ -111,7 +140,23 @@ var routes = {
         },
         {
             path:"/listings", 
-            handler:listings.add
+            handler:listings.add,
+            validator: {
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                },
+                body:listings.addSchema
+            }
+        },
+        {
+            path:"/addListing", 
+            handler:listings.addListing,
+            validator: {
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+                
+            }
         }
     ]
 }
@@ -120,7 +165,17 @@ function processEvent(event, context, callback) {
     if(event.path.substr(-1) === "/"){
         event.path = event.path.substr(0, event.path.length-1)
     }
-    if(routes[event.httpMethod]){
+    if(event.httpMethod === 'OPTIONS'){
+        callback(null, {
+            statusCode: 200,
+            body:"{}",
+            headers:{
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'content-type, x-api-key',
+                'Access-Control-Allow-Methods':	'OPTIONS,GET,POST'
+            }
+        })
+    }else if(routes[event.httpMethod]){
         var handler;
         var validator;
         var params;
@@ -132,6 +187,7 @@ function processEvent(event, context, callback) {
             if (params !== false) {
                 handler = routes[event.httpMethod][a].handler
                 event.params = params
+                console.log('b',JSON.parse(event.body))
                 if(typeof event.body === 'string'){
                     event.body = JSON.parse(event.body)
                 }

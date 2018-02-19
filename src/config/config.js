@@ -1,3 +1,5 @@
+var remote = require('remote-json');
+
 var pp = require('./public');
 var PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgGklWf9rF9g2RlcgLxXFc/DnIcPpVWnbYTZdbVX58LjAXihHjC/W
@@ -21,8 +23,10 @@ o4ypQyWqip5Ue1YHnUkqu6UBYaW0vaYdwk7Fb19z3Fba6SmLehfpZLtYzMUxZJhn
 wX5zXGPXO4AvPixpAgMBAAE=
 -----END PUBLIC KEY-----`
 var config = {
+  ISS:"https://securetoken.google.com/spaceishare-195201",
   TOKEN_EXPIERY_LENGTH: 1 * 60 * 60 * 1000,
   MAX_AUTHOR_IMAGE:1,
+  MAX_LISTIG_IMAGE:4,
   WEB_TOKEN_EXPIERY: {
     web: '1h',
     user: '1h',
@@ -34,7 +38,18 @@ var config = {
     admin: 2
   },
   PRIVATE_KEY,
-  PUBLIC_KEY
+  PUBLIC_KEY,
+  GOOGLE_KEYS:require('./googlekeys'),
+  GET_GOOGLE_KEYS:()=>{
+  
+    remote('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com')
+    .get(function (err, res, body) {
+        console.log(res.statusCode); // 200
+        console.log(body); // {"name": "Bob", "key": "value"}
+        config.GOOGLE_KEYS = body
+    });
+    
+  }
 };
 
 for (var a in pp) {
@@ -45,4 +60,12 @@ for (var b in config) {
     config[b] = process.env[b];
   }
 }
+var cbs = []
+function clearcbs(){
+  for(var a in cbs){
+    cbs.pop(null, config.GOOGLE_KEYS)
+  }
+}
+
+
 module.exports = config;
