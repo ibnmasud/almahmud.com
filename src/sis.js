@@ -7,6 +7,7 @@ const querystring = require('querystring');
 //const AWS = require('aws-sdk');
 //var MongoClient = require('mongodb').MongoClient;
 var people = require('./src/people')
+var message = require('./src/message')
 var listings = require('./src/listings')
 var mongo_uri;
 var cachedDb = null;
@@ -14,6 +15,8 @@ var Boom = require('boom')
 var Joi = require('joi')
 var validateJWT = require('./src/validateJWT')
 const tokenValidationJoi = require('./src/joiTokenValidator')
+const tokenValidationJoiUnsecured = require('./src/joiTokenValidator').Unsecured
+
 var rootPath = '/sis'
 var DEBUG_SIS = false
 exports.handler = (event, context, callback) => {
@@ -31,6 +34,26 @@ var lamdaResponse = require('./src/lambdaResponse')
 var routes = {
     "GET":[
         {
+            path:"/messages/:from", 
+            handler:message.getMessageFromUser,
+            validator: {
+                params: {
+                    from: Joi.string().required()
+                },
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+            }
+        },{
+            path:"/messeges", 
+            handler:message.getMessages,
+            validator: {
+
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+            }
+        },{
             path:"/people/:id", 
             handler:people.getByIdPublic,
             validator: {
@@ -125,9 +148,29 @@ var routes = {
                     "x-api-key": tokenValidationJoi.token().jwt('user')
                 }
             }
+        },
+        {
+            path:"/stripe/id", 
+            handler:listings.confirmBooking,
+            validator: {
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                }
+                
+            }
         }
     ],
     "POST":[
+        {
+            path:"/messages", 
+            handler:message.add,
+            validator: {
+                headers:{
+                    "x-api-key": tokenValidationJoi.token().jwt()
+                },
+                body:message.addSchema
+            }
+        },
         {
             path:"/people", 
             handler:people.add,
@@ -154,6 +197,16 @@ var routes = {
             validator: {
                 headers:{
                     "x-api-key": tokenValidationJoi.token().jwt()
+                }
+                
+            }
+        },
+        {
+            path:"/stripe", 
+            handler:listings.bookListing,
+            validator: {
+                headers:{
+                    "x-api-key": tokenValidationJoiUnsecured.token().jwt()
                 }
                 
             }

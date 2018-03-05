@@ -2,6 +2,7 @@
 var CONFIG = require('../config/config');
 const Boom = require('boom');
 var jwt = require('jsonwebtoken');
+var admin = require('firebase-admin');
 
 //var logger = require('./logger');
 
@@ -29,6 +30,21 @@ function validateJWT(token){
   }
   
 }
+exports.validateJWTUnsecured = (token)=>{
+  console.log('validateJWTUnsecured', token)
+  try{
+    var notverified = jwt.decode(token, {complete: true})
+    if(notverified.secret){
+      return notverified
+    }
+    return false
+    
+  }catch(e){
+    console.log(e)
+    return false;
+  }
+}
+
 function firebaseTokenValidate(idToken, cb){
   admin.auth().verifyIdToken(idToken)
   .then(function(decodedToken) {

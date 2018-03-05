@@ -1,12 +1,91 @@
 var lamdaResponse = require('./lambdaResponse')
 const joiGetDate = require('./joiGetDate')
 var remote = require('remote-json');
+var passwordGenerator = require("./pgen")
+var admin = require('firebase-admin');
 
 const Joi = require('joi')
 const listings = "https://api.mlab.com/api/1/databases/sis/collections/listings?apiKey=nupdJlpcblePLqZbYT6Zr02fBTUHRLEN"
 const authors = "https://api.mlab.com/api/1/databases/sis/collections/authors?apiKey=nupdJlpcblePLqZbYT6Zr02fBTUHRLEN"
+const stripeToken = "https://api.mlab.com/api/1/databases/sis/collections/stripeToken?apiKey=nupdJlpcblePLqZbYT6Zr02fBTUHRLEN"
+var stripe = require("stripe")(
+    "sk_test_VxbgaY00Bd5Kaot5JjbeHAwA"
+);
 exports.add = (event, context, callback)=>{
     callback(null, lamdaResponse({msg:"listings create",event, context}))
+}
+function addStripeToken(tokenFromKey, uid, callback, password){
+    tokenFromKey.from = uid
+    remote(stripeToken)
+    .post(tokenFromKey,(err, res, body)=>{
+        //send email to owner with links to approve and link to send message
+        //send email to payer with password if provided
+        callback(null, lamdaResponse({ message: ""}))
+    })
+}
+exports.confirmBooking = (event, context, callback)=>{
+    var tokenFromKey = event.headers['x-api-key']
+    var author_id = event.headers['x-api-key'].user_id
+    var approvalId = event.params.id
+    //we are not verifying if its the author accepting
+    remote(stripeToken+'&q='+JSON.stringify({_id:approvalId}))
+    .put({$set:{approved:{by: tokenFromKey},}},(err, res, body)=>{
+        //send email to owner that place is confirmed
+        //send email to payer that place is confirmed
+        callback(null, lamdaResponse({ message: ""}))
+    })
+}
+exports.bookListing = (event, context, callback)=>{
+    var tokenFromKey = event.headers['x-api-key']
+    var token = event.body.token;
+    var email = token.email
+    tokenFromKey._id = token.id
+
+    var password = passwordGenerator(12)
+    
+    stripe.customers.create({
+        description: 'Customer for '+email,
+        source: token.id // obtained with Stripe.js
+    }, function(err, customer) {
+        tokenFromKey.customer = customer
+        admin.auth().getUserByEmail(email)
+        .then(function(userRecord) {
+            // See the UserRecord reference doc for the contents of userRecord.
+            const fbuser = userRecord.toJSON()
+            console.log("Successfully fetched user data:", userRecord.toJSON());
+            addStripeToken(tokenFromKey, fbuser.uid, callback)
+            
+        })
+        .catch(function(error) {
+            console.log("Error fetching user data:", error);
+            admin.auth().createUser({
+                email,
+                password,
+            })
+            .then(function(userRecord) {
+                // Send user their password
+                // See the UserRecord reference doc for the contents of userRecord.
+                const fbuser = userRecord.toJSON()
+                console.log("Successfully created user data:", userRecord.toJSON());
+                addStripeToken(tokenFromKey, fbuser.uid, callback, password)
+
+            })
+            .catch(function(error) {
+                console.log("Error creating new user:", error);
+                callback(error)
+            });
+        });
+        
+    // asynchronously called
+      });
+
+    
+    if(token.id === tokenFromKey.stripe.id){
+        
+    }else{
+        callback('invalid stripe token')
+    }
+
 }
 exports.addListing = (event, context, callback)=>{
     var authorFromKey = event.headers['x-api-key']
